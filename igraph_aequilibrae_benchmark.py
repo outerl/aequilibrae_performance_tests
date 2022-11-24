@@ -9,7 +9,7 @@ import warnings
 
 sys.path.append(str(Path(__file__).resolve().parent))
 from project_utils import project_init
-from aeq import aequilibrae_testing
+from aeq import aequilibrae_init, aequilibrae_compute
 
 iters = 2
 repeats = 5
@@ -36,19 +36,11 @@ if __name__ == "__main__":
         # Benchmark time
         results = []
         for project_name in projects:
-            # graph, nodes = project_init(project_name)
-            graph = None
+            graph, nodes = project_init(project_name)
 
             print(f"Running aequilibrae on {project_name}...")
 
-            def aeq_init(x, y):
-                return (1, 2, 3)
-
-            def aeq_run(x, y, z):
-                w = (x + y + z)
-
-            results.append(run_bench("aeq", project_name, aeq_init, aeq_run, graph, cost))
-            results.append(run_bench("aeq", project_name, aeq_init, aeq_run, graph, cost))
+            results.append(run_bench("aeq", project_name, aequilibrae_init, aequilibrae_compute, graph, cost))
             # print(f'Running igraph on {project_name}...')
             # project_times[project_name]['igraph'] = igraph_testing(graph, nodes, cost)
 

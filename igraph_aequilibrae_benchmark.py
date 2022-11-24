@@ -9,7 +9,7 @@ import warnings
 
 sys.path.append(str(Path(__file__).resolve().parent))
 from project_utils import project_init
-from aeq import aequilibrae_init, aequilibrae_compute
+from aeq_testing import aequilibrae_init, aequilibrae_compute
 
 iters = 2
 repeats = 5

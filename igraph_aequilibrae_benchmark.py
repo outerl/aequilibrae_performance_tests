@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+from socket import gethostname
 import sys
 import timeit
 import numpy as np
@@ -19,6 +20,7 @@ def run_bench(algo, project_name, init, main, graph, cost):
     df = pd.DataFrame({"runtime": t.repeat(repeat=repeats, number=iters)})
     df["algorithm"] = algo
     df["project_name"] = project_name
+    df['computer'] = gethostname()
     return df
 
 

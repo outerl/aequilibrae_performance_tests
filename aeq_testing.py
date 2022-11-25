@@ -1,15 +1,18 @@
-import timeit
 from aequilibrae.paths import NetworkSkimming
+import timeit
 
 
-def aequilibrae_compute(graph):
+def aequilibrae_compute_skim(graph):
     # And run the skimming
     skm = NetworkSkimming(graph)
     skm.execute()
     return skm.results.skims
 
 
-def aequilibrae_init(graph, cost):
+def aequilibrae_init(graph, cost: str):
+    """
+    Prepare the graph for skimming the network for `cost`
+    """
     graph.prepare_graph(graph.centroids)
     # let's say we want to minimize the cost
     graph.set_graph(cost)
@@ -24,8 +27,8 @@ def aequilibrae_init(graph, cost):
     return (graph,)
 
 
-def aequilibrae_testing(graph, cost):
+def aequilibrae_testing(graph, cost: str, iters: int = 2, repeats: int = 5):
     graph = aequilibrae_init(graph, cost)
-    t = timeit.Timer(lambda: aequilibrae_compute(graph))
+    t = timeit.Timer(lambda: aequilibrae_compute_skim(graph))
     times = t.repeat(repeat=repeats, number=iters)
     return times

@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 from pathlib import Path
 from socket import gethostname
+from argparse import ArgumentParser
 import sys
 import timeit
-import numpy as np
 import pandas as pd
 import warnings
 
 sys.path.append(str(Path(__file__).resolve().parent))
 from project_utils import project_init
-from aeq_testing import aequilibrae_init, aequilibrae_compute
 from pandana_testing import pandana_init, pandana_compute
+from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
+from igraph_testing import igraph_init, igraph_compute_skim
 
-iters = 2
-repeats = 5
 
-
-def run_bench(algo, project_name, init, main, graph, cost):
+def run_bench(algo, project_name, init, func, graph, cost, iters: int = 2, repeats: int = 5):
     stuff = init(graph, cost)
-    t = timeit.Timer(lambda: main(*stuff))
+    t = timeit.Timer(lambda: func(*stuff))
     df = pd.DataFrame({"runtime": t.repeat(repeat=repeats, number=iters)})
     df["algorithm"] = algo
     df["project_name"] = project_name
@@ -26,7 +24,13 @@ def run_bench(algo, project_name, init, main, graph, cost):
     return df
 
 
-if __name__ == "__main__":
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("-m", "--models", dest="path", default='../models',
+                        help="path to models", metavar="FILE")
+
+    args = vars(parser.parse_args())
+
     projects = ["sioux_falls"]
     cost = "free_flow_time"
 
@@ -37,13 +41,13 @@ if __name__ == "__main__":
         # Benchmark time
         results = []
         for project_name in projects:
-            graph, nodes = project_init(project_name)
+            graph, nodes = project_init(f"{args['path']}/{project_name}")
 
             print(f"Running aequilibrae on {project_name}...")
+            results.append(run_bench("aeq", project_name, aequilibrae_init, aequilibrae_compute_skim, graph, cost))
 
-            results.append(run_bench("aeq", project_name, aequilibrae_init, aequilibrae_compute, graph, cost))
-            # print(f'Running igraph on {project_name}...')
-            # project_times[project_name]['igraph'] = igraph_testing(graph, nodes, cost)
+            print(f'Running igraph on {project_name}...')
+            results.append(run_bench("igraph", project_name, igraph_init, igraph_compute_skim, graph, cost))
 
             print(f"Running pandana on {project_name}...")
             results.append(run_bench("pandana", project_name, pandana_init, pandana_compute, graph, cost))
@@ -53,3 +57,7 @@ if __name__ == "__main__":
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         print(summary)
+
+
+if __name__ == "__main__":
+    main()

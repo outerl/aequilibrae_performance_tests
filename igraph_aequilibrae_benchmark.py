@@ -10,6 +10,7 @@ import warnings
 sys.path.append(str(Path(__file__).resolve().parent))
 from project_utils import project_init
 from aeq_testing import aequilibrae_init, aequilibrae_compute
+from pandana_testing import pandana_init, pandana_compute
 
 iters = 2
 repeats = 5
@@ -43,6 +44,9 @@ if __name__ == "__main__":
             results.append(run_bench("aeq", project_name, aequilibrae_init, aequilibrae_compute, graph, cost))
             # print(f'Running igraph on {project_name}...')
             # project_times[project_name]['igraph'] = igraph_testing(graph, nodes, cost)
+
+            print(f"Running pandana on {project_name}...")
+            results.append(run_bench("pandana", project_name, pandana_init, pandana_compute, graph, cost))
 
         results = pd.concat(results)
         summary = results.groupby(["project_name", "algorithm"]).agg(

@@ -6,36 +6,21 @@ import timeit
 import warnings
 import pandas as pd
 
-#Skimming for auequilibrae, pandana, times, save them for later
-#Testing on 3 supplied databases
-#Testing specifications
-sample_size = 100
-#with a z cause it's hip
-iterz = 2
-repeat = 5
-
-project_times = {"sioux_falls": {}, "chicago_sketch": {}}
-
-
-def pandana_init(graph: ae.Graph):
+def pandana_init(graph: ae.Graph, cost: str):
     """
     Initialises the pandana network, executes each individual benchmark
     """
     net = graph.network
     pnet = pnd.Network(net["link_id"], net["link_id"], net["a_node"], net["b_node"],
-                       net[["distance"]], twoway=False)
+                       net[[cost]], twoway=False)
     centroids = [o for o in graph.centroids for d in graph.centroids]
     return pnet, centroids
-
-    #Pathfinding for pandana, run on the compressed graph created by aequilibrae
-
 
 def pandana_testing(net: pnd.Network, centroids):
     """Tests the equivalent to the aequilibrae skim matrix,
     computes path for all centroids to all centroids, will output the length of each path in a (long) list"""
-    #Initialising the actual arrays being parsed into shortest path
     timer = timeit.Timer(lambda: pandana_compute(net, centroids))
-    times = timer.repeat(repeat=repeat, number=iterz)
+    times = timer.repeat(repeat=repeats, number=iters)
     return times
 
 def pandana_compute(net: pnd.Network, centroids: list):

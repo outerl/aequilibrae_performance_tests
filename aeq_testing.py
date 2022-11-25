@@ -2,14 +2,15 @@ from aequilibrae.paths import NetworkSkimming
 import timeit
 
 
-def aequilibrae_compute_skim(graph):
+def aequilibrae_compute_skim(graph, cores):
     # And run the skimming
     skm = NetworkSkimming(graph)
+    skm.results.set_cores(cores)
     skm.execute()
     return skm.results.skims
 
 
-def aequilibrae_init(graph, cost: str):
+def aequilibrae_init(graph, cost: str, cores: int = 0):
     """
     Prepare the graph for skimming the network for `cost`
     """
@@ -24,7 +25,7 @@ def aequilibrae_init(graph, cost: str):
     # required for the Sioux Falls network, as all nodes are centroids
     # BE CAREFUL WITH THIS SETTING
     graph.set_blocked_centroid_flows(False)
-    return (graph,)
+    return (graph, cores)
 
 
 def aequilibrae_testing(graph, cost: str, iters: int = 2, repeats: int = 5):

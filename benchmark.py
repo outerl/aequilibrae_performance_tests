@@ -12,7 +12,7 @@ from project_utils import project_init
 from pandana_testing import pandana_init, pandana_compute
 from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
 from igraph_testing import igraph_init, igraph_compute_skim
-
+from networkit_testing import networkit_init, networkit_compute
 
 def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
     stuff = init(*data)
@@ -28,7 +28,7 @@ def main():
     projects = ["sioux_falls", "chicago_sketch"]
     cost = "free_flow_time"
 
-    libraries = ["aequilibrae", "igraph", "pandana"]
+    libraries = ["aequilibrae", "igraph", "pandana", "networkit"]
 
     parser = ArgumentParser()
     parser.add_argument("-m", "--model-path", dest="path", default='../models',
@@ -71,6 +71,12 @@ def main():
                 print(f"Running pandana on {project_name}...")
                 results.append(run_bench("pandana", project_name, pandana_init,
                                          pandana_compute,
+                                         (graph, cost)))
+
+            if "networkit" in args["libraries"]:
+                print(f"Running Networkit on {project_name}...")
+                results.append(run_bench("networkit", project_name, networkit_init,
+                                         networkit_compute,
                                          (graph, cost)))
 
         results = pd.concat(results)

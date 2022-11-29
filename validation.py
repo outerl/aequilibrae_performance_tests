@@ -31,7 +31,6 @@ def validate(skim1, skim2, atol: float = 1e-01):
 
 
 def validate_projects(proj_path: str, projects: str, libraries: List[str], cost: str, cores: int = 1):
-    # Quickly test that both methods produce the same result. FIXME they don't...
     result = True
     for project_name in projects:
         print(f"Testing {project_name}")
@@ -53,9 +52,9 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
                 a_len = max(a.shape)
                 a_len_sqrt = int(np.sqrt(a_len))
                 skims.append(a.reshape((a_len_sqrt, a_len_sqrt)))
-            # elif "networkit" == library:
-            #     print(f"Running Networkit on {project_name}...")
-            #     skims.append(networkit_compute(*networkit_init(graph, cost)))
+            elif "networkit" == library:
+                print(f"Running Networkit on {project_name}...")
+                skims.append(networkit_compute(*networkit_init(graph, cost)))
 
         print("")
         for skim, library in list(zip(skims, libraries))[1:]:

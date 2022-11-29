@@ -43,6 +43,10 @@ def main():
                         choices=libraries,
                         default=libraries,
                         help="libraries to benchmark")
+    parser.add_argument("-p", "--projects", nargs='+', dest="projects",
+                        choices=projects,
+                        default=projects,
+                        help="projects to benchmark using")
 
     args = vars(parser.parse_args())
 
@@ -52,7 +56,7 @@ def main():
 
         # Benchmark time
         results = []
-        for project_name in projects:
+        for project_name in args["projects"]:
             graph, nodes = project_init(f"{args['path']}/{project_name}")
 
             if "aequilibrae" in args["libraries"]:

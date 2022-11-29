@@ -49,7 +49,10 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
                 skims.append(igraph_compute_skim(*igraph_init(graph, cost)))
             elif "pandana" == library:
                 print(f"Running pandana on {project_name}...")
-                skims.append(np.array(pandana_compute(*pandana_init(graph, cost))).reshape((24,24)))
+                a = np.array(pandana_compute(*pandana_init(graph, cost)))
+                a_len = max(a.shape)
+                a_len_sqrt = int(np.sqrt(a_len))
+                skims.append(a.reshape((a_len_sqrt, a_len_sqrt)))
             # elif "networkit" == library:
             #     print(f"Running Networkit on {project_name}...")
             #     skims.append(networkit_compute(*networkit_init(graph, cost)))

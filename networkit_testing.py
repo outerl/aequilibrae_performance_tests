@@ -32,7 +32,8 @@ def networkit_testing(net: g.Graph, centroids):
 def networkit_compute(net: g.Graph, centroids: list):
     """Only way to do centroid to all"""
     #NOTE: Have to shift for the 0 node, alternatively could add a dummy node in
+    results = []
     for i in centroids:
         dist = nk.Dijkstra(net, i-1, storePaths=True).run()
-    return
-
+        results.append(dist.getDistances(asarray=True))
+    return np.array(results)

@@ -13,6 +13,7 @@ from pandana_testing import pandana_init, pandana_compute
 from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
 from igraph_testing import igraph_init, igraph_compute_skim
 from networkit_testing import networkit_init, networkit_compute
+from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
 
 def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
     stuff = init(*data)
@@ -28,7 +29,7 @@ def main():
     projects = ["sioux_falls", "chicago_sketch"]
     cost = "free_flow_time"
 
-    libraries = ["aequilibrae", "igraph", "pandana", "networkit"]
+    libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
 
     parser = ArgumentParser()
     parser.add_argument("-m", "--model-path", dest="path", default='../models',
@@ -82,6 +83,14 @@ def main():
                 results.append(run_bench("networkit", project_name, networkit_init,
                                          networkit_compute,
                                          (graph, cost)))
+
+            if "graph-tool" in args["libraries"] and "graph_tool" in sys.modules:
+                print(f"Running graph-tool on {project_name}...")
+                results.append(run_bench("graph-tool", project_name, graph_tool_init,
+                                         graph_tool_compute_skim,
+                                         (graph, cost, args["cores"])))
+
+            print("-" * 30)
 
         results = pd.concat(results)
         summary = results.groupby(["project_name", "library"]).agg(

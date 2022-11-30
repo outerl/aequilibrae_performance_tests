@@ -2,6 +2,7 @@
 import numpy as np
 from argparse import ArgumentParser
 import warnings
+import sys
 from typing import List
 
 from project_utils import project_init
@@ -9,6 +10,7 @@ from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
 from igraph_testing import igraph_init, igraph_compute_skim
 from pandana_testing import pandana_init, pandana_compute
 from networkit_testing import networkit_init, networkit_compute
+from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
 
 
 def validate(skim1, skim2, atol: float = 1e-01):
@@ -55,6 +57,9 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
             elif "networkit" == library:
                 print(f"Running Networkit on {project_name}...")
                 skims.append(networkit_compute(*networkit_init(graph, cost)))
+            elif "graph-tool" == library and "graph_tool" in sys.modules:
+                print(f"Running graph-tool on {project_name}...")
+                skims.append(graph_tool_compute_skim(*graph_tool_init(graph, cost)))
 
         print("")
         for skim, library in list(zip(skims, libraries))[1:]:
@@ -63,12 +68,13 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
                 result = False
             else:
                 print(f"{library} matches {libraries[0]}")
+        print("-" * 30)
     return result
 
 
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
-    libraries = ["aequilibrae", "igraph", "pandana", "networkit"]
+    libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
     cost = "free_flow_time"
 
     parser = ArgumentParser()

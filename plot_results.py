@@ -2,6 +2,7 @@ from plotly.subplots import make_subplots
 from math import ceil
 import plotly.graph_objects as go
 import pandas as pd
+import plotly.express as px
 
 def benchmark_chart(summary: pd.DataFrame, projects: list, libraries: list) -> go.Figure:
     fig = make_subplots(rows=ceil(len(projects)/2), cols=2, subplot_titles=projects)
@@ -27,6 +28,20 @@ def benchmark_chart(summary: pd.DataFrame, projects: list, libraries: list) -> g
         fig['layout'][axis]['title'] = 'Average Runtime in Seconds'
     return fig
 
-def aeq_ratios(summary: pd.DataFrame, projects: list, libraries: list) -> go.Figure:
+def aeq_ratios(summary: pd.DataFrame, projects: list, proj_links: list, comparison: str, target = "aeq") -> go.Figure:
+    """
+
+    :param summary: Benchmark results
+    :param projects: List of projects run
+    :param proj_links: Number of links in each project
+    :param comparison: Package results being compared to
+    :param target: Package whose performance is being tested, aequilibrae by default
+    :return: go.Figure, a plot of the ratio for the target package by the number of links in each network
+    """
+    #ratio of performance between aeq and a designated library (comparison), based on the size of the network (num edges).
+    ratios = []
+    for proj in projects:
+        ratios.append(summary.loc[(proj, target)]["average"]/summary.loc[(proj, comparison)]["average"])
+    return px.scatter(x=proj_links, y=ratios, labels={"x": "Number of Links", "y": "Ratio of Execution Time"}, title="Perfomance ratio for skimming between " +target+" and "+comparison)
 
     pass

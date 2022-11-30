@@ -14,6 +14,7 @@ from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
 from igraph_testing import igraph_init, igraph_compute_skim
 from networkit_testing import networkit_init, networkit_compute
 from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
+from plot_results import benchmark_chart, aeq_ratios
 
 def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
     stuff = init(*data)
@@ -28,7 +29,8 @@ def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
     cost = "free_flow_time"
-
+    #List for ratios chart
+    num_links = []
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
 
     parser = ArgumentParser()
@@ -59,7 +61,7 @@ def main():
         results = []
         for project_name in args["projects"]:
             graph, nodes = project_init(f"{args['path']}/{project_name}")
-
+            num_links.append(graph.num_links)
             if "aequilibrae" in args["libraries"]:
                 print(f"Running aequilibrae on {project_name}...")
                 results.append(run_bench("aeq", project_name, aequilibrae_init,
@@ -97,6 +99,8 @@ def main():
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         print(summary)
+        benchmark_chart(summary, projects, libraries).show()
+        aeq_ratios(summary, projects, num_links, "igraph").show()
 
 
 if __name__ == "__main__":

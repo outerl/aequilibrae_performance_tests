@@ -23,17 +23,18 @@ def igraph_init(graph, cost: str):
 
     # ig's Graph.DataFrame method assumes the first 2 columns of the `edges` arg is
     # the sources and destination of the edge
-    cols = graph.graph.columns.tolist()
-    cols = [cols[1], cols[2], cols[0]] + cols[3:]
-    edges = graph.graph[cols]
+    graph.set_graph(cost)
+    cols = graph.compact_graph.columns.tolist()
+    cols = [cols[1], cols[2]]
+    edges = graph.compact_graph[cols]
 
     # IDs in the graph need to be a sequence, so can't passing in a indexed version
     # of the graph otherwise igraph will generate a ton of empty vertexes
-    g = ig.Graph.DataFrame(edges, directed=True, vertices=pd.DataFrame({"node_id": graph.all_nodes}), use_vids=True)
+    g = ig.Graph.DataFrame(edges, directed=True, vertices=pd.DataFrame({"node_id": graph.compact_all_nodes}), use_vids=True)
 
-    g.es[cost] = edges[cost].tolist()
+    g.es[cost] = graph.compact_cost
 
-    centroids = graph.nodes_to_indices[graph.centroids]
+    centroids = graph.compact_nodes_to_indices[graph.centroids]
     return g, centroids, cost
 
 

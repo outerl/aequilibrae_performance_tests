@@ -1,17 +1,19 @@
 import aequilibrae as ae
 import pandana as pnd
+import pandas as pd
 import timeit
 
 
-def pandana_init(graph: ae.Graph, cost: str):
+def pandana_init(graph: ae.Graph, cost: str, geo):
     """
     Initialises the pandana network, executes each individual benchmark
     """
-    net = graph.network
-    pnet = pnd.Network(net["link_id"], net["link_id"], net["a_node"], net["b_node"],
-                       net[[cost]], twoway=False)
+    graph.set_graph(cost)
+    pnet = pnd.Network(geo[:, 0], geo[:, 1], graph.compact_graph["a_node"], graph.compact_graph["b_node"],
+                       pd.DataFrame(graph.compact_cost), twoway=False)
 
-    return pnet, [o for o in graph.centroids for d in graph.centroids], [d for o in graph.centroids for d in graph.centroids]
+    c = graph.compact_nodes_to_indices[graph.centroids]
+    return pnet, [o for o in c for d in c], [d for o in c for d in c]
 
 
 def pandana_testing(net: pnd.Network, orig, dest, iters: int = 2, repeats: int = 5):

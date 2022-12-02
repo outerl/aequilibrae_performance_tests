@@ -37,7 +37,7 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
     for project_name in projects:
         print(f"Testing {project_name}")
 
-        graph, nodes = project_init(f"{proj_path}/{project_name}")
+        graph, nodes, geo = project_init(f"{proj_path}/{project_name}")
 
         skims = []  # NOTE: the first element is used as the reference model
 
@@ -50,7 +50,7 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
                 skims.append(igraph_compute_skim(*igraph_init(graph, cost)))
             elif "pandana" == library:
                 print(f"Running pandana on {project_name}...")
-                a = np.array(pandana_compute(*pandana_init(graph, cost)))
+                a = np.array(pandana_compute(*pandana_init(graph, cost, geo)))
                 a_len = max(a.shape)
                 a_len_sqrt = int(np.sqrt(a_len))
                 skims.append(a.reshape((a_len_sqrt, a_len_sqrt)))

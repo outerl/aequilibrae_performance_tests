@@ -60,7 +60,7 @@ def main():
         # Benchmark time
         results = []
         for project_name in args["projects"]:
-            graph, nodes = project_init(f"{args['path']}/{project_name}")
+            graph, nodes, geo = project_init(f"{args['path']}/{project_name}")
             num_links.append(graph.num_links)
             if "aequilibrae" in args["libraries"]:
                 print(f"Running aequilibrae on {project_name}...")
@@ -78,7 +78,7 @@ def main():
                 print(f"Running pandana on {project_name}...")
                 results.append(run_bench("pandana", project_name, pandana_init,
                                          pandana_compute,
-                                         (graph, cost)))
+                                         (graph, cost, geo)))
 
             if "networkit" in args["libraries"]:
                 print(f"Running Networkit on {project_name}...")

@@ -9,7 +9,7 @@ def benchmark_chart(summary: pd.DataFrame, projects: list, libraries: list) -> g
     row, col = 1, 1
     color_dict = {}
     #TODO: Make this less janky, scalable to 4+ algos
-    color = ["firebrick", "blue", "cyan",]# "fuschia"]
+    color = ["#f00202", "#020af0", "#00d9ff",]# "fuschia"]
     for i, j in enumerate(libraries):
         color_dict[j] = color[i]
 

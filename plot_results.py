@@ -15,7 +15,7 @@ def benchmark_chart(summary: pd.DataFrame, projects: list, libraries: list) -> g
 
     for proj in projects:
         results = summary.loc[proj]
-        trace = go.Bar(x=libraries, y=results["average"], marker_color=color)
+        trace = go.Bar(x=libraries, y=results["average"], marker_color=color, showlegend=False)
         fig.add_trace(trace, row=row, col=col)
         if col == 2:
             col = 1

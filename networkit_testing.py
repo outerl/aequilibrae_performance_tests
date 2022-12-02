@@ -15,7 +15,7 @@ def networkit_init(graph: ae.Graph, cost: str):
     workit = g.Graph(weighted=True, directed=True)
     for i in list(zip(net["a_node"].tolist(), net["b_node"].tolist(), graph.compact_cost)):
         workit.addEdge(i[0], i[1], w=i[2], addMissing=True)
-    return workit, graph.nodes_to_indices[graph.centroids]
+    return workit, graph.compact_nodes_to_indices[graph.centroids]
 
 
 def networkit_testing(net: g.Graph, centroids):

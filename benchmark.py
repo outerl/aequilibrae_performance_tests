@@ -50,6 +50,9 @@ def main():
                         choices=projects,
                         default=projects,
                         help="projects to benchmark using")
+    parser.add_argument('--no-plots', dest='plots', action='store_false')
+    parser.add_argument('--plots', dest='plots', action='store_true')
+    parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())
 
@@ -99,8 +102,9 @@ def main():
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         print(summary)
-        benchmark_chart(summary, projects, libraries).show()
-        aeq_ratios(summary, projects, num_links, "igraph").show()
+        if args['plots']:
+            benchmark_chart(summary, projects, libraries).show()
+            aeq_ratios(summary, projects, num_links, "igraph").show()
 
 
 if __name__ == "__main__":

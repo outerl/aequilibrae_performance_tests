@@ -32,8 +32,8 @@ RUN conda init bash && \
 #     pandana_testing.py benchmark.py validation.py ./aequilibrae_performance_tests/
 
 # Run validation
-RUN conda init bash && \
+CMD conda init bash && \
     source "/opt/conda/bin/activate" && \
     conda activate benchmarking && \
-    python ./aequilibrae_performance_tests/validation.py -m ./models -p sioux_falls # && \
-    # python ./aequilibrae_performance_tests/benchmark.py -m ./models
+    python ./aequilibrae_performance_tests/validation.py -m ./models -p sioux_falls && \
+    python ./aequilibrae_performance_tests/benchmark.py -m ./models

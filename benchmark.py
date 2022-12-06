@@ -14,7 +14,10 @@ from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
 from igraph_testing import igraph_init, igraph_compute_skim
 from networkit_testing import networkit_init, networkit_compute
 from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
-from plot_results import benchmark_chart, aeq_ratios
+try:
+    from plot_results import benchmark_chart, aeq_ratios
+except ModuleNotFoundError:
+    warnings.warn('plotting is not possible', ImportWarning)
 
 def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
     stuff = init(*data)
@@ -28,7 +31,6 @@ def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int
 
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
-    cost = "free_flow_time"
     #List for ratios chart
     num_links = []
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
@@ -47,12 +49,22 @@ def main():
                         default=libraries,
                         help="libraries to benchmark")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
-                        choices=projects,
                         default=projects,
                         help="projects to benchmark using")
+    parser.add_argument("--cost", dest="cost", default='free_flow_time',
+                        help="cost column to skim for")
+    parser.add_argument('--no-plots', dest='plots', action='store_false')
+    parser.add_argument('--plots', dest='plots', action='store_true')
+    parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())
 
+    cost = args["cost"]
+    cores = args["cores"]
+    iterations = args["iters"]
+    repeats = args["repeats"]
+    print(f"Now benchmarking {args['libraries']} on the {args['projects']} model/s.")
+    print(f"Running with {iterations} iterations, {repeats} times, for a total of {iterations * repeats} samples.")
     with warnings.catch_warnings():
         # pandas future warnings are really annoying FIXME
         warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -60,37 +72,42 @@ def main():
         # Benchmark time
         results = []
         for project_name in args["projects"]:
-            graph, nodes, geo = project_init(f"{args['path']}/{project_name}")
+            graph, nodes, geo = project_init(f"{args['path']}/{project_name}", cost)
             num_links.append(graph.num_links)
             if "aequilibrae" in args["libraries"]:
                 print(f"Running aequilibrae on {project_name}...")
                 results.append(run_bench("aeq", project_name, aequilibrae_init,
                                          aequilibrae_compute_skim,
-                                         (graph, cost, args["cores"])))
+                                         (graph, cost, cores),
+                                         iterations, repeats))
 
             if "igraph" in args["libraries"]:
                 print(f'Running igraph on {project_name}...')
                 results.append(run_bench("igraph", project_name, igraph_init,
                                          igraph_compute_skim,
-                                         (graph, cost)))
+                                         (graph, cost),
+                                         iterations, repeats))
 
             if "pandana" in args["libraries"]:
                 print(f"Running pandana on {project_name}...")
                 results.append(run_bench("pandana", project_name, pandana_init,
                                          pandana_compute,
-                                         (graph, cost, geo)))
+                                         (graph, cost, geo),
+                                         iterations, repeats))
 
             if "networkit" in args["libraries"]:
                 print(f"Running Networkit on {project_name}...")
                 results.append(run_bench("networkit", project_name, networkit_init,
                                          networkit_compute,
-                                         (graph, cost)))
+                                         (graph, cost),
+                                         iterations, repeats))
 
             if "graph-tool" in args["libraries"] and "graph_tool" in sys.modules:
                 print(f"Running graph-tool on {project_name}...")
                 results.append(run_bench("graph-tool", project_name, graph_tool_init,
                                          graph_tool_compute_skim,
-                                         (graph, cost, args["cores"])))
+                                         (graph, cost, cores),
+                                         iterations, repeats))
 
             print("-" * 30)
 
@@ -99,8 +116,9 @@ def main():
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         print(summary)
-        benchmark_chart(summary, projects, libraries).show()
-        aeq_ratios(summary, projects, num_links, "igraph").show()
+        if args['plots']:
+            benchmark_chart(summary, args["projects"], libraries).show()
+            aeq_ratios(summary, args["projects"], num_links, "igraph").show()
 
 
 if __name__ == "__main__":

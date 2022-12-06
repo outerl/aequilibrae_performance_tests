@@ -106,8 +106,8 @@ def main():
         )
         print(summary)
         if args['plots']:
-            benchmark_chart(summary, projects, libraries).show()
-            aeq_ratios(summary, projects, num_links, "igraph").show()
+            benchmark_chart(summary, args["projects"], libraries).show()
+            aeq_ratios(summary, args["projects"], num_links, "igraph").show()
 
 
 if __name__ == "__main__":

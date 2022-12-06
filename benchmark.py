@@ -31,7 +31,6 @@ def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int
 
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
-    cost = "free_flow_time"
     #List for ratios chart
     num_links = []
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
@@ -50,15 +49,18 @@ def main():
                         default=libraries,
                         help="libraries to benchmark")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
-                        choices=projects,
                         default=projects,
                         help="projects to benchmark using")
+    parser.add_argument("--cost", dest="cost", default='free_flow_time',
+                        help="cost column to skim for")
     parser.add_argument('--no-plots', dest='plots', action='store_false')
     parser.add_argument('--plots', dest='plots', action='store_true')
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())
 
+    cost = args["cost"]
+    cores = args["cores"]
     with warnings.catch_warnings():
         # pandas future warnings are really annoying FIXME
         warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -66,13 +68,13 @@ def main():
         # Benchmark time
         results = []
         for project_name in args["projects"]:
-            graph, nodes, geo = project_init(f"{args['path']}/{project_name}")
+            graph, nodes, geo = project_init(f"{args['path']}/{project_name}", cost)
             num_links.append(graph.num_links)
             if "aequilibrae" in args["libraries"]:
                 print(f"Running aequilibrae on {project_name}...")
                 results.append(run_bench("aeq", project_name, aequilibrae_init,
                                          aequilibrae_compute_skim,
-                                         (graph, cost, args["cores"])))
+                                         (graph, cost, cores)))
 
             if "igraph" in args["libraries"]:
                 print(f'Running igraph on {project_name}...')
@@ -96,7 +98,7 @@ def main():
                 print(f"Running graph-tool on {project_name}...")
                 results.append(run_bench("graph-tool", project_name, graph_tool_init,
                                          graph_tool_compute_skim,
-                                         (graph, cost, args["cores"])))
+                                         (graph, cost, cores)))
 
             print("-" * 30)
 

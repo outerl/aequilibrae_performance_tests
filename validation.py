@@ -37,7 +37,7 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
     for project_name in projects:
         print(f"Testing {project_name}")
 
-        graph, nodes, geo = project_init(f"{proj_path}/{project_name}")
+        graph, nodes, geo = project_init(f"{proj_path}/{project_name}", cost)
 
         skims = []  # NOTE: the first element is used as the reference model
 
@@ -75,7 +75,6 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], cost:
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
-    cost = "free_flow_time"
 
     parser = ArgumentParser()
     parser.add_argument("-m", "--model-path", dest="path", default='../models',
@@ -84,13 +83,15 @@ def main():
                         choices=libraries,
                         default=libraries,
                         help="libraries to validate, the first one is used as the reference")
+    parser.add_argument("--cost", dest="cost", default='free_flow_time',
+                        help="cost column to skim for")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
-                        choices=projects,
                         default=projects,
                         help="projects to benchmark using")
 
     args = vars(parser.parse_args())
 
+    cost = args["cost"]
     with warnings.catch_warnings():
         # pandas future warnings are really annoying FIXME
         warnings.simplefilter(action="ignore", category=FutureWarning)

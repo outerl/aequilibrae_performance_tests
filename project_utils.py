@@ -2,7 +2,7 @@ from aequilibrae import Project
 import numpy as np
 
 
-def project_init(proj_path: str, cost: str = "free_flow_time", modes: str = "c"):
+def project_init(proj_path: str, cost, modes: str = "c"):
     """
     Opens a aequilibrae project from `proj_path`. Builds to
     relevant graph and return the graph and nodes.

@@ -61,6 +61,10 @@ def main():
 
     cost = args["cost"]
     cores = args["cores"]
+    iterations = args["iters"]
+    repeats = args["repeats"]
+    print(f"Now benchmarking {args['libraries']} on the {args['projects']} model/s.")
+    print(f"Running with {iterations} iterations, {repeats} times, for a total of {iterations * repeats} samples.")
     with warnings.catch_warnings():
         # pandas future warnings are really annoying FIXME
         warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -74,31 +78,36 @@ def main():
                 print(f"Running aequilibrae on {project_name}...")
                 results.append(run_bench("aeq", project_name, aequilibrae_init,
                                          aequilibrae_compute_skim,
-                                         (graph, cost, cores)))
+                                         (graph, cost, cores),
+                                         iterations, repeats))
 
             if "igraph" in args["libraries"]:
                 print(f'Running igraph on {project_name}...')
                 results.append(run_bench("igraph", project_name, igraph_init,
                                          igraph_compute_skim,
-                                         (graph, cost)))
+                                         (graph, cost),
+                                         iterations, repeats))
 
             if "pandana" in args["libraries"]:
                 print(f"Running pandana on {project_name}...")
                 results.append(run_bench("pandana", project_name, pandana_init,
                                          pandana_compute,
-                                         (graph, cost, geo)))
+                                         (graph, cost, geo),
+                                         iterations, repeats))
 
             if "networkit" in args["libraries"]:
                 print(f"Running Networkit on {project_name}...")
                 results.append(run_bench("networkit", project_name, networkit_init,
                                          networkit_compute,
-                                         (graph, cost)))
+                                         (graph, cost),
+                                         iterations, repeats))
 
             if "graph-tool" in args["libraries"] and "graph_tool" in sys.modules:
                 print(f"Running graph-tool on {project_name}...")
                 results.append(run_bench("graph-tool", project_name, graph_tool_init,
                                          graph_tool_compute_skim,
-                                         (graph, cost, cores)))
+                                         (graph, cost, cores),
+                                         iterations, repeats))
 
             print("-" * 30)
 

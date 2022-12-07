@@ -2,6 +2,7 @@
 from pathlib import Path
 from socket import gethostname
 from argparse import ArgumentParser
+from datetime import datetime
 import sys
 import timeit
 import pandas as pd
@@ -19,10 +20,11 @@ try:
 except ModuleNotFoundError:
     warnings.warn('plotting is not possible', ImportWarning)
 
+
 def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
     stuff = init(*data)
     t = timeit.Timer(lambda: func(*stuff))
-    df = pd.DataFrame({"runtime": t.repeat(repeat=repeats, number=iters)})
+    df = pd.DataFrame({"runtime": [x / iters for x in t.repeat(repeat=repeats, number=iters)]})
     df["library"] = algo
     df["project_name"] = project_name
     df["computer"] = gethostname()
@@ -31,7 +33,6 @@ def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int
 
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
-    #List for ratios chart
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
 
     parser = ArgumentParser()
@@ -105,7 +106,7 @@ def main():
                 print(f"Running Networkit on {project_name}...")
                 results.append(run_bench("networkit", project_name, networkit_init,
                                          networkit_compute,
-                                         (graph, cost),
+                                         (graph, cost, cores),
                                          iterations, repeats))
 
             if "graph-tool" in args["libraries"] and "graph_tool" in sys.modules:
@@ -128,7 +129,7 @@ def main():
             benchmark_chart(summary, args["projects"], libraries).write_image("Images/Benchmark_proj.png")
             aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
                        args["libraries"]).write_image("Images/Benchmark_ratios.png")
-            summary.to_csv("Images/table.csv")
+            summary.to_csv(f"Images/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
             proj_summary.to_csv("Images/project summary.csv")
 
 

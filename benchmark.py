@@ -20,6 +20,7 @@ try:
 except ModuleNotFoundError:
     warnings.warn('plotting is not possible', ImportWarning)
 
+
 def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
     stuff = init(*data)
     t = timeit.Timer(lambda: func(*stuff))
@@ -32,7 +33,7 @@ def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int
 
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
-    #List for ratios chart
+    # List for ratios chart
     num_links = []
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
 

@@ -133,7 +133,7 @@ def main():
             benchmark_chart(summary, args["projects"], libraries).write_image(f"{output_path}/Benchmark_proj.png")
             aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
                        libraries).write_image(f"{output_path}/Benchmark_ratios.png")
-            summary.to_csv(f"{output_path}/Images/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
+            summary.to_csv(f"{output_path}/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
             proj_summary.to_csv(f"{output_path}/project summary.csv")
 
 

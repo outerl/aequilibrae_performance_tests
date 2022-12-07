@@ -63,7 +63,8 @@ def main():
     cores = args["cores"]
     iterations = args["iters"]
     repeats = args["repeats"]
-    print(f"Now benchmarking {args['libraries']} on the {args['projects']} model/s.")
+    libraries = args['libraries']
+    print(f"Now benchmarking {libraries} on the {args['projects']} model/s.")
     print(f"Running with {iterations} iterations, {repeats} times, for a total of {iterations * repeats} samples.")
     with warnings.catch_warnings():
         # pandas future warnings are really annoying FIXME
@@ -81,35 +82,35 @@ def main():
                 "num_centroids": [len(graph.centroids)]
             }, index=[project_name]))
 
-            if "aequilibrae" in args["libraries"]:
+            if "aequilibrae" in libraries:
                 print(f"Running aequilibrae on {project_name}...")
                 results.append(run_bench("aequilibrae", project_name, aequilibrae_init,
                                          aequilibrae_compute_skim,
                                          (graph, cost, cores),
                                          iterations, repeats))
 
-            if "igraph" in args["libraries"]:
+            if "igraph" in libraries:
                 print(f'Running igraph on {project_name}...')
                 results.append(run_bench("igraph", project_name, igraph_init,
                                          igraph_compute_skim,
                                          (graph, cost),
                                          iterations, repeats))
 
-            if "pandana" in args["libraries"]:
+            if "pandana" in libraries:
                 print(f"Running pandana on {project_name}...")
                 results.append(run_bench("pandana", project_name, pandana_init,
                                          pandana_compute,
                                          (graph, cost, geo),
                                          iterations, repeats))
 
-            if "networkit" in args["libraries"]:
+            if "networkit" in libraries:
                 print(f"Running Networkit on {project_name}...")
                 results.append(run_bench("networkit", project_name, networkit_init,
                                          networkit_compute,
                                          (graph, cost, cores),
                                          iterations, repeats))
 
-            if "graph-tool" in args["libraries"] and "graph_tool" in sys.modules:
+            if "graph-tool" in libraries and "graph_tool" in sys.modules:
                 print(f"Running graph-tool on {project_name}...")
                 results.append(run_bench("graph-tool", project_name, graph_tool_init,
                                          graph_tool_compute_skim,
@@ -128,7 +129,7 @@ def main():
             largest_proj = proj_summary["num_nodes"].idxmax()
             benchmark_chart(summary, args["projects"], libraries).write_image("Images/Benchmark_proj.png")
             aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
-                       args["libraries"]).write_image("Images/Benchmark_ratios.png")
+                       libraries).write_image("Images/Benchmark_ratios.png")
             summary.to_csv(f"Images/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
             proj_summary.to_csv("Images/project summary.csv")
 

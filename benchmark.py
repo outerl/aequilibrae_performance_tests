@@ -32,7 +32,6 @@ def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
     #List for ratios chart
-    num_links = []
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
 
     parser = ArgumentParser()
@@ -71,12 +70,19 @@ def main():
 
         # Benchmark time
         results = []
+        proj_series = []
         for project_name in args["projects"]:
             graph, nodes, geo = project_init(f"{args['path']}/{project_name}", cost)
-            num_links.append(graph.num_links)
+            proj_series.append(pd.DataFrame({
+                "num_links": [graph.num_links],
+                "num_nodes": [graph.num_nodes],
+                "num_zones": [graph.num_zones],
+                "num_centroids": [len(graph.centroids)]
+            }, index=[project_name]))
+
             if "aequilibrae" in args["libraries"]:
                 print(f"Running aequilibrae on {project_name}...")
-                results.append(run_bench("aeq", project_name, aequilibrae_init,
+                results.append(run_bench("aequilibrae", project_name, aequilibrae_init,
                                          aequilibrae_compute_skim,
                                          (graph, cost, cores),
                                          iterations, repeats))
@@ -111,16 +117,19 @@ def main():
 
             print("-" * 30)
 
+        proj_summary = pd.concat(proj_series)
         results = pd.concat(results)
         summary = results.groupby(["project_name", "library"]).agg(
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         print(summary)
         if args['plots']:
+            largest_proj = proj_summary["num_nodes"].idxmax()
             benchmark_chart(summary, args["projects"], libraries).write_image("Images/Benchmark_proj.png")
-            aeq_ratios(summary, args["projects"], num_links, "igraph").write_image("Images/Benchmark_ratios.png")
-            #Also the dataframe
+            aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
+                       args["libraries"]).write_image("Images/Benchmark_ratios.png")
             summary.to_csv("Images/table.csv")
+            proj_summary.to_csv("Images/project summary.csv")
 
 
 

@@ -9,7 +9,7 @@ def benchmark_chart(summary: pd.DataFrame, projects: list, libraries: list) -> g
     row, col = 1, 1
     color_dict = {}
     #TODO: Make this less janky, scalable to 4+ algos
-    color = ["#f00202", "#020af0", "#00d9ff",]# "fuschia"]
+    color = ["#f00202", "#020af0", "#00d9ff", "#9d00ff", "#ff0084", ]
     for i, j in enumerate(libraries):
         color_dict[j] = color[i]
 
@@ -61,7 +61,7 @@ def aeq_ratios(summary: pd.DataFrame, projects: pd.DataFrame, comparison: str, a
         fig.add_trace(trace)
         #Aesthetics
     fig.update_layout(title={
-        'text': "Perfomance ratio for skimming between each package and "+comparison,
+        'text': "Perfomance ratio between tested packages and "+comparison,
         'y': 0.9,
         'x': 0.5,
         'xanchor': 'center',
@@ -71,6 +71,6 @@ def aeq_ratios(summary: pd.DataFrame, projects: pd.DataFrame, comparison: str, a
           legend_title="Algorithms",
           font=dict(
                 family="Courier New, monospace",
-                size=16,)
+                size=12,)
             )
     return fig

@@ -33,7 +33,7 @@ RUN conda init bash && \
     pip install igraph pandana networkit
 
 # COPY aeq_testing.py networkit_testing.py project_utils.py igraph_testing.py \
-#     pandana_testing.py benchmark.py validation.py ./aequilibrae_performance_tests/
+#     pandana_testing.py benchmark.py validation.py plot_results.py ./aequilibrae_performance_tests/
 
 # Run validation
 CMD conda init bash && \

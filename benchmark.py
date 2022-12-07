@@ -38,7 +38,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-m", "--model-path", dest="path", default='../models',
                         help="path to models", metavar="FILE")
-    parser.add_argument("-o", "--output-path", dest="output", default='./Images',
+    parser.add_argument("-o", "--output-path", dest="output", default='./',
                         help="where to place output data and images", metavar="FILE")
     parser.add_argument("-i", "--iterations", dest="iters", default=2, type=int,
                         help="number of times to run each library per sample", metavar="X")
@@ -130,11 +130,11 @@ def main():
         print(summary)
         if args['plots']:
             largest_proj = proj_summary["num_nodes"].idxmax()
-            benchmark_chart(summary, args["projects"], libraries).write_image(f"{output_path}/Images/Benchmark_proj.png")
+            benchmark_chart(summary, args["projects"], libraries).write_image(f"{output_path}/Benchmark_proj.png")
             aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
-                       libraries).write_image(f"{output_path}/Images/Benchmark_ratios.png")
+                       libraries).write_image(f"{output_path}/Benchmark_ratios.png")
             summary.to_csv(f"{output_path}/Images/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
-            proj_summary.to_csv(f"{output_path}/Images/project summary.csv")
+            proj_summary.to_csv(f"{output_path}/project summary.csv")
 
 
 

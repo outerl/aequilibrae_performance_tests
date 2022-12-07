@@ -119,6 +119,9 @@ def main():
         if args['plots']:
             benchmark_chart(summary, args["projects"], libraries).write_image("Images/Benchmark_proj.png")
             aeq_ratios(summary, args["projects"], num_links, "igraph").write_image("Images/Benchmark_ratios.png")
+            #Also the dataframe
+            summary.to_csv("Images/table.csv")
+
 
 
 if __name__ == "__main__":

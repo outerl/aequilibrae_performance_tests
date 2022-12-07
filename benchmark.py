@@ -101,7 +101,7 @@ def main():
                 print(f"Running Networkit on {project_name}...")
                 results.append(run_bench("networkit", project_name, networkit_init,
                                          networkit_compute,
-                                         (graph, cost),
+                                         (graph, cost, cores),
                                          iterations, repeats))
 
             if "graph-tool" in args["libraries"] and "graph_tool" in sys.modules:

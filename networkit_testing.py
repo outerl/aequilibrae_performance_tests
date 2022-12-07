@@ -1,16 +1,18 @@
 import aequilibrae as ae
+import networkit
 import networkit.graph as g
 import networkit.distance as nk
 import numpy as np
 import timeit
 
 
-def networkit_init(graph: ae.Graph, cost: str):
+def networkit_init(graph: ae.Graph, cost: str, cores: int = 1):
     """
     Initialises the pandana network, executes each individual benchmark
     """
     # Setting up the compressed graph to be tested, assuming the graph exists
     graph.set_graph(cost)
+    networkit.setNumberOfThreads(cores)
     net = graph.compact_graph
     workit = g.Graph(weighted=True, directed=True)
     for i in list(zip(net["a_node"].tolist(), net["b_node"].tolist(), graph.compact_cost)):

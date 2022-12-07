@@ -20,7 +20,7 @@ cdef BinaryHeap* initialize_heap(int num_nodes):
     #TODO: memset as zeros
     cdef BinaryHeap* a = <BinaryHeap*> malloc(sizeof(BinaryHeap))
     a.heap = <Node**> malloc(num_nodes * sizeof(Node*))
-    a.last_node = 0
+    a.next_available_index = 0
     a.last_elem = num_nodes
     return a
 
@@ -81,7 +81,6 @@ cdef void decrease_val(BinaryHeap* heap, Node* node, double val):# nogil:
         up_heap(heap, node)
 
 cdef void down_heap(BinaryHeap* heap, Node* node):# nogil:
-    print("downheaping index, value:", node.index , node.val, "list before downheaping: ", heap_to_list(heap))
     cdef int a = node.index
     #Memory safe check to make sure we aren't venturing into unknown territory (uninitialised memory)/child checking
     if 2 * a + 1 > heap.last_node-1:

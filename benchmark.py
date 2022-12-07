@@ -2,6 +2,7 @@
 from pathlib import Path
 from socket import gethostname
 from argparse import ArgumentParser
+from datetime import datetime
 import sys
 import timeit
 import pandas as pd
@@ -120,7 +121,7 @@ def main():
             benchmark_chart(summary, args["projects"], libraries).write_image("Images/Benchmark_proj.png")
             aeq_ratios(summary, args["projects"], num_links, "igraph").write_image("Images/Benchmark_ratios.png")
             #Also the dataframe
-            summary.to_csv("Images/table.csv")
+        summary.to_csv(f"Images/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
 
 
 

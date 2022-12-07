@@ -60,14 +60,14 @@ optional arguments:
 # Docker
 For ease of use, a `Dockerfile` was created to automate the setup and testing of the scripts.
 ## Usage
-Heres and example of the Dockerfile that supplies, a volume for the image and csv output, the models to test, the models location, the libraries to test, the cost values name, the number of cores to use, and the number of times to repeat the testing with the specified number of iterations.
+Here's and example of the Dockerfile that supplies, a volume for the image and csv output, the models to test, the models location, the libraries to test, the cost values name, the number of cores to use, and the number of times to repeat the testing with the specified number of iterations.
 ```
 docker run -v ~/aequilibrae_performance_tests/Images:/aequilibrae_performance_tests/Images \
     aequilibrae_performance_tests /bin/bash -c "conda init bash &> /dev/null && \
         source '/opt/conda/bin/activate' &> /dev/null && \
         conda activate benchmarking &> /dev/null && \
         python -u ./aequilibrae_performance_tests/benchmark.py -m ./models -o /aequilibrae_performance_tests/Images \
-            -p sioux_falls chicago_sketch LongAn 'Arkansas statewide model' --cost distance \
+            -p sioux_falls chicago_sketch --cost distance \
             -l aequilibrae igraph networkit graph-tool \
             -r 2 -i 2 -c 1"
 ```

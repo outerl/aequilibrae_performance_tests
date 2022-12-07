@@ -24,7 +24,7 @@ except ModuleNotFoundError:
 def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
     stuff = init(*data)
     t = timeit.Timer(lambda: func(*stuff))
-    df = pd.DataFrame({"runtime": t.repeat(repeat=repeats, number=iters)})
+    df = pd.DataFrame({"runtime": [x / iters for x in t.repeat(repeat=repeats, number=iters)]})
     df["library"] = algo
     df["project_name"] = project_name
     df["computer"] = gethostname()

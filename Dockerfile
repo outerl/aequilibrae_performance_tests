@@ -21,6 +21,10 @@ RUN conda init bash && \
     pip install ./aequilibrae
 
 RUN git clone --depth 1 https://github.com/outerl/aequilibrae_performance_tests
+RUN conda init bash && \
+    source "/opt/conda/bin/activate" && \
+    conda activate benchmarking && \
+    pip install plotly kaleido
 
 # igraph, pandana, and networkit setup
 RUN conda init bash && \

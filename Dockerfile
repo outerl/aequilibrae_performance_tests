@@ -21,6 +21,10 @@ RUN conda init bash && \
     pip install ./aequilibrae
 
 RUN git clone --depth 1 https://github.com/outerl/aequilibrae_performance_tests
+RUN conda init bash && \
+    source "/opt/conda/bin/activate" && \
+    conda activate benchmarking && \
+    pip install plotly kaleido
 
 # igraph, pandana, and networkit setup
 RUN conda init bash && \
@@ -29,11 +33,12 @@ RUN conda init bash && \
     pip install igraph pandana networkit
 
 # COPY aeq_testing.py networkit_testing.py project_utils.py igraph_testing.py \
-#     pandana_testing.py benchmark.py validation.py ./aequilibrae_performance_tests/
+#     pandana_testing.py benchmark.py validation.py plot_results.py ./aequilibrae_performance_tests/
 
-# Run validation
-CMD conda init bash && \
-    source "/opt/conda/bin/activate" && \
-    conda activate benchmarking && \
-    python ./aequilibrae_performance_tests/validation.py -m ./models -p sioux_falls && \
-    python ./aequilibrae_performance_tests/benchmark.py -m ./models --no-plots
+CMD conda init bash &> /dev/null && \
+    source '/opt/conda/bin/activate' &> /dev/null && \
+    conda activate benchmarking &> /dev/null && \
+    python -u ./aequilibrae_performance_tests/benchmark.py -m ./models -o /aequilibrae_performance_tests/Images \
+        -p sioux_falls chicago_sketch --cost distance \
+        -l aequilibrae igraph networkit graph-tool \
+        -r 2 -i 2 -c 1

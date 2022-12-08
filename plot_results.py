@@ -69,7 +69,7 @@ def aeq_ratios(summary: pd.DataFrame, projects: pd.DataFrame, comparison: str, a
         'xanchor': 'center',
         'yanchor': 'top'},
           xaxis_title="Number of Links in Project",
-          yaxis_title="Ratio of performance "+comparison,
+          yaxis_title="Ratio of performance",
           legend_title="Algorithms",
           font=dict(
                 family="Courier New, monospace",

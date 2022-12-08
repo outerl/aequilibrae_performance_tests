@@ -1,4 +1,3 @@
-import cython
 from binary_heap import *
 from four_heap import *
 from unittest import TestCase
@@ -172,7 +171,7 @@ def float_me(solns: list):
     return [[float(d) for d in i] for i in solns]
 
 
-def validate_list(heap, soln)->bool:
+def validate_list(heap: list, soln: list) -> bool:
     for i in range(0, len(heap)):
         if heap[i] != soln[i]:
             return False

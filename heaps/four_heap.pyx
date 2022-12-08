@@ -102,15 +102,15 @@ cdef void down_heap(Four_Heap * heap, Node * node):  # nogil:
     cdef int a = node.index
     #Memory safe check to make sure we aren't venturing into unknown territory (uninitialised memory)/child checking
     cdef int child = 0
-    while 4 * a + child + 1 < heap.next_available_index - 1 and child < 4:
+    while (4 * a) + (child + 1) < heap.next_available_index and child < 4:
         child+=1
     if child == 0:
         return
     cdef int b
-    cdef Node* min_child = heap.heap[4*a+1]
+    cdef Node* min_child = heap.heap[(4*a)+1]
     for i in range(2, child+1):
-        if min_child.val > heap.heap[4*a+child].val:
-            min_child = heap.heap[4*a+child]
+        if min_child.val > heap.heap[4*a+i].val:
+            min_child = heap.heap[4*a+i]
     b = min_child.index
     if node.val <= heap.heap[b].val:
         return
@@ -167,7 +167,7 @@ cdef list heap_to_list(Four_Heap * heap):
         a.append(heap.heap[i].val)
     return a
 
-def execute_python_test(inserts: list, solns: list):
+def execute_python_test_four(inserts: list, solns: list):
     """
     Utility method for executing python based tests into the cython code. Supports insertion, removal and decrementation:
     These actions are specified in inserts with the following syntax:
@@ -189,10 +189,10 @@ def execute_python_test(inserts: list, solns: list):
             index, val = elem
             decrease_val(heap, heap.heap[index], val)
         elif isinstance(elem, str):
-            print("removal")
+            #print("removal")
             remove_min(heap)
         else:
-            print("insert", elem)
+            #print("insert", elem)
             init_insert_node(heap, elem)
         print(solns[i], "Heap is: ", heap_to_list(heap))
         i += 1

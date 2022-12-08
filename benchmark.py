@@ -132,9 +132,9 @@ def main():
         proj_summary.to_csv(f"{output_path}/project summary.csv")
         if args['plots']:
             largest_proj = proj_summary["num_nodes"].idxmax()
-            benchmark_chart(summary, args["projects"], libraries).write_image(f"{output_path}/Benchmark_proj.png")
+            benchmark_chart(summary, args["projects"], libraries).write_image(f"{output_path}/Benchmark_proj.png", width=1000, height=800)
             aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
-                       libraries).write_image(f"{output_path}/Benchmark_ratios.png")
+                       libraries).write_image(f"{output_path}/Benchmark_ratios.png", width=1000, height=800)
 
 
 

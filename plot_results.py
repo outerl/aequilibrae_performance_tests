@@ -3,9 +3,10 @@ from math import ceil
 import plotly.graph_objects as go
 import pandas as pd
 import plotly.express as px
+NUM_COLS=2
 
 def benchmark_chart(summary: pd.DataFrame, projects: list, libraries: list) -> go.Figure:
-    fig = make_subplots(rows=ceil(len(projects)/2), cols=2, subplot_titles=projects)
+    fig = make_subplots(rows=ceil(len(projects)/2), cols=NUM_COLS, subplot_titles=projects)
     row, col = 1, 1
     color_dict = {}
     #TODO: Make this less janky, scalable to 4+ algos
@@ -25,7 +26,8 @@ def benchmark_chart(summary: pd.DataFrame, projects: list, libraries: list) -> g
 
     for i in range(0, len(projects)):
         axis = 'yaxis' + str(i+1) if i != 0 else 'yaxis'
-        fig['layout'][axis]['title'] = 'Minimum Runtime in Seconds'
+        if i % NUM_COLS == 0:
+            fig['layout'][axis]['title'] = 'Minimum Runtime in Seconds'
         fig.update_layout(title={'text': "Minimum Runtime of each Library",
         'y':0.95,
         'x':0.5,

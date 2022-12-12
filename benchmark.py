@@ -79,8 +79,8 @@ def main():
         for project_name in args["projects"]:
             graph, nodes, geo = project_init(f"{args['path']}/{project_name}", cost)
             proj_series.append(pd.DataFrame({
-                "num_links": [graph.num_links],
-                "num_nodes": [graph.num_nodes],
+                "num_links": [graph.compact_num_links],
+                "num_nodes": [graph.compact_num_nodes],
                 "num_zones": [graph.num_zones],
                 "num_centroids": [len(graph.centroids)]
             }, index=[project_name]))

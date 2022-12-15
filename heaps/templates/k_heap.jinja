@@ -1,6 +1,6 @@
 cimport cython
 from libc.stdlib cimport realloc, malloc, free
-from cPython cimport PyList_New
+from cpython cimport PyList_New
 
 # distutils: language = c++
 # Set the number of children in the heap

@@ -1,7 +1,7 @@
 cimport cython
 from libc.stdio cimport printf
 from libc.stdlib cimport realloc, malloc, free
-from cPython cimport PyList_New
+from cpython cimport PyList_New
 # distutils: language=c++
 include 'parameters.pxi'
 

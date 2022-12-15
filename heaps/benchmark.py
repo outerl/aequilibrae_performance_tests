@@ -2,6 +2,7 @@
 import os
 import subprocess
 from argparse import ArgumentParser
+import tempfile
 from shutil import copyfile
 from os.path import join, isfile
 import warnings
@@ -22,12 +23,12 @@ def render_template(aeq_path: str, heap_path: str, min_elem_checker):
         f.write(out)
 
 
-def make_results(path_to_heaps):
-    csvs = [f for f in os.listdir(path_to_heaps + "/utils") if f.endswith('.csv')]
+def make_results(path_to_csvs):
+    csvs = [f for f in os.listdir(path_to_csvs) if f.endswith('.csv')]
     print(csvs)
     data = []
     for csv in csvs:
-        data.append(pd.read_csv(path_to_heaps + "/utils/" + csv))
+        data.append(pd.read_csv(os.path.join(path_to_csvs, csv)))
     summary = pd.concat(data).groupby(["project_name", "heap"]).agg(
         average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
     )
@@ -35,7 +36,7 @@ def make_results(path_to_heaps):
 
 
 def validate(args):
-    subprocess.run(["python", r"../validation.py",
+    subprocess.run(["python", r"validation.py",
                     "--model-path", args["path"],
                     "--libaries", "aequilibrae igraph"
                     "--projects", " ".join(args["projects"]),
@@ -55,7 +56,7 @@ def main():
                         help="number of times to run each library per sample", metavar="X")
     parser.add_argument("-r", "--repeats", dest="repeats", default=5, type=int,
                         help="number of samples", metavar="Y")
-    parser.add_argument("-c", "--cores", nargs="+", dest="cores", default=0,
+    parser.add_argument("-c", "--cores", nargs="+", dest="cores", default=[0],
                         help="number of cores to use. Use 0 for all cores.",
                         type=int, metavar="N")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
@@ -74,39 +75,38 @@ def main():
     min_elem_checker = {
         "fibonacci.pyx": "heap.min_node"
     }
+    relative_heap_path = "heaps/"
 
     #validate(heaps)
     print(heaps)
-    for heap in heaps:
-        if "kheap.pyx" in heap and heap in "kheap.pyx":
-            print(heap + " is the jinja kheap")
-            env = Environment(loader=PackageLoader("benchmark", "templates"))
-            template = env.get_template("k_heap.jinja")
-            out = template.render(K=8)
-            with open('aequilibrae/paths/heaps/kheap.pyx', 'w') as f:
-                f.write(out)
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        for heap in [heaps[1]]:
+            if "kheap.pyx" in heap and heap in "kheap.pyx":
+                print(heap + " is the jinja kheap")
+                env = Environment(loader=PackageLoader("benchmark", "templates"))
+                template = env.get_template("k_heap.jinja")
+                out = template.render(K=8)
+                with open(os.path.abspath(os.path.join(relative_heap_path, heap)), 'w') as f:
+                    f.write(out)
 
-        print("Rendering ", heap.split(".")[0])
-        relative_heap_path = "heaps/"
-        render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
-        print("Compiling...")
-        subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
-                       cwd=os.path.join(args["source"], "aequilibrae", "paths"))
-        print("Compilation complete")
-        subprocess.run(["python", r"../benchmark.py",
-                        "--model-path", args["path"],
-                        "--output-path", args["output"],
-                        "--iterations", args["iters"],
-                        "--repeats", args["repeats"],
-                        "--cores", " ".join(args["cores"]),
-                        "--libaries", "aequilibrae"
-                        "--projects", " ".join(args["projects"]),
-                        "--cost", args["cost"],
-                        "--no-plots", args["no-plots"],
-                        "--plots", args["plots"]])
-    print("made it this far")
-    make_results(path_to_heaps)
-
+            print("Rendering ", heap.split(".")[0])
+            render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
+            print("Compiling...")
+            subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
+                        cwd=os.path.join(args["source"], "aequilibrae", "paths"))
+            print("Compilation complete")
+            subprocess.run(["python", r"benchmark.py",
+                            "--model-path", args["path"],
+                            "--output-path", tmpdirname,
+                            "--iterations", str(args["iters"]),
+                            "--repeats", str(args["repeats"]),
+                            "--cores", " ".join((str(x) for x in args["cores"])),
+                            "--libraries", "aequilibrae",
+                            "--projects", *args["projects"],
+                            "--cost", args["cost"],
+                            "--plots" if args["plots"] else "--no-plots"])
+        print("made it this far")
+        make_results(tmpdirname)
 
 
 if __name__ == "__main__":

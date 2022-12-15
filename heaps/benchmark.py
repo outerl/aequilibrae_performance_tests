@@ -28,8 +28,9 @@ def make_results(path_to_csvs):
     print(csvs)
     data = []
     for csv in csvs:
-        data.append(pd.read_csv(os.path.join(path_to_csvs, csv)))
-    summary = pd.concat(data).groupby(["project_name", "heap"]).agg(
+        df = pd.read_csv(os.path.join(path_to_csvs, csv))
+        data.append(df)
+    summary = pd.concat(data).groupby(["project_name", "details", "cores"]).agg(
         average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
     )
     print(summary)
@@ -100,11 +101,12 @@ def main():
                             "--output-path", tmpdirname,
                             "--iterations", str(args["iters"]),
                             "--repeats", str(args["repeats"]),
-                            "--cores", " ".join((str(x) for x in args["cores"])),
+                            "--cores", *(str(x) for x in args["cores"]),
                             "--libraries", "aequilibrae",
                             "--projects", *args["projects"],
                             "--cost", args["cost"],
-                            "--plots" if args["plots"] else "--no-plots"])
+                            "--plots" if args["plots"] else "--no-plots",
+                            "--details", heap.split(".")[0]])
         print("made it this far")
         make_results(tmpdirname)
 

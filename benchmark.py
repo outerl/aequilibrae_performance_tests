@@ -38,7 +38,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-m", "--model-path", dest="path", default='../models',
                         help="path to models", metavar="FILE")
-    parser.add_argument("-o", "--output-path", dest="output", default='./',
+    parser.add_argument("-o", "--output-path", dest="output", default='./Images',
                         help="where to place output data and images", metavar="FILE")
     parser.add_argument("-i", "--iterations", dest="iters", default=2, type=int,
                         help="number of times to run each library per sample", metavar="X")

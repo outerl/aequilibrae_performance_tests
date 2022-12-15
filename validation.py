@@ -32,34 +32,35 @@ def validate(skim1, skim2, atol: float = 1e-01):
         return False
 
 
-def validate_projects(proj_path: str, projects: str, libraries: List[str], cost: str, cores: int = 1):
+def validate_projects(proj_path: str, projects: str, libraries: List[str], args):
     result = True
     for project_name in projects:
         print(f"Testing {project_name}")
 
-        graph, nodes, geo = project_init(f"{proj_path}/{project_name}", cost)
+        args["graph"], args["nodes"], args["geo"] = project_init(f"{args['path']}/{project_name}", args["cost"])
+        args["cores"] = 0
 
         skims = []  # NOTE: the first element is used as the reference model
 
         for library in libraries:
             if "aequilibrae" == library:
                 print(f"Running aequilibrae on {project_name}...")
-                skims.append(aequilibrae_compute_skim(*aequilibrae_init(graph, cost)).get_matrix(cost))
+                skims.append(aequilibrae_compute_skim(*aequilibrae_init(args)).get_matrix(args["cost"]))
             elif "igraph" == library:
                 print(f'Running igraph on {project_name}...')
-                skims.append(igraph_compute_skim(*igraph_init(graph, cost)))
+                skims.append(igraph_compute_skim(*igraph_init(args)))
             elif "pandana" == library:
                 print(f"Running pandana on {project_name}...")
-                a = np.array(pandana_compute(*pandana_init(graph, cost, geo)))
+                a = np.array(pandana_compute(*pandana_init(args)))
                 a_len = max(a.shape)
                 a_len_sqrt = int(np.sqrt(a_len))
                 skims.append(a.reshape((a_len_sqrt, a_len_sqrt)))
             elif "networkit" == library:
                 print(f"Running Networkit on {project_name}...")
-                skims.append(networkit_compute(*networkit_init(graph, cost)))
+                skims.append(networkit_compute(*networkit_init(args)))
             elif "graph-tool" == library and "graph_tool" in sys.modules:
                 print(f"Running graph-tool on {project_name}...")
-                skims.append(graph_tool_compute_skim(*graph_tool_init(graph, cost)))
+                skims.append(graph_tool_compute_skim(*graph_tool_init(args)))
 
         print("")
         for skim, library in list(zip(skims, libraries))[1:]:
@@ -91,11 +92,10 @@ def main():
 
     args = vars(parser.parse_args())
 
-    cost = args["cost"]
     with warnings.catch_warnings():
         # pandas future warnings are really annoying FIXME
         warnings.simplefilter(action="ignore", category=FutureWarning)
-        if validate_projects(args["path"], args["projects"], args["libraries"], cost):
+        if validate_projects(args["path"], args["projects"], args["libraries"], args):
             print("All models validated")
             return True
         else:

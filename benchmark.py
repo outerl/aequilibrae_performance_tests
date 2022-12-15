@@ -30,6 +30,8 @@ def run_bench(lib, project_name, init, func, data):
     df["project_name"] = project_name
     df["cores"] = data['cores']
     df["computer"] = gethostname()
+    if data["details"]:
+        df["details"] = data["details"]
     return df
 
 
@@ -58,6 +60,7 @@ def main():
                         help="cost column to skim for")
     parser.add_argument('--no-plots', dest='plots', action='store_false')
     parser.add_argument('--plots', dest='plots', action='store_true')
+    parser.add_argument('--details', dest='details')
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())

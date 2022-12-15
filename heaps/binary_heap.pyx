@@ -1,38 +1,55 @@
 cimport cython
+from libc.stdio cimport printf
 from libc.stdlib cimport realloc, malloc, free
 from cPython cimport PyList_New
-# distutils: language=c
+# distutils: language=c++
+include 'parameters.pxi'
 
 cdef struct Node:
     #index of the node in the array
-    unsigned int index
+    unsigned int arr_index
+    #A way to index the node to its weight
+    ITYPE_t index
     #State of the node, Dijkstra implementation specific
     #   SCANNED = 1
     #   NOT_IN_HEAP = 2
     #   IN_HEAP = 3
-    unsigned int state
+    char state
     #The skim/distance value of the node
-    double val
+    DTYPE_t val
 
-cdef struct BinaryHeap:
+cdef struct Heap:
     #Pointer to the heap array of Node pointers
     Node** heap
     #The index of the last node in the heap
-    int next_available_index
+    unsigned int next_available_index
     #The number of indices that have been allocated, used for dynamic memory allocation
     int last_elem
 
-cdef BinaryHeap* initialize_heap(int num_nodes):
+cdef Heap* initialize_heap(int num_nodes) nogil:
     #TODO: memset as zeros
-    cdef BinaryHeap* a = <BinaryHeap*> malloc(sizeof(BinaryHeap))
+    cdef Heap* a = <Heap*> malloc(sizeof(Heap))
     a.heap = <Node**> malloc(num_nodes * sizeof(Node*))
     a.next_available_index = 0
     a.last_elem = num_nodes
     return a
 
+cdef void initialize_node(Node* node, ITYPE_t index, DTYPE_t val=0) nogil:
+    """
+    Initialises a node with the input index and value, and returns a pointer to it
+    :param index: index in relation to the graph costs
+    :param val: The value stored in the node
+    :return: Pointer to the Node
+    """
+    #cdef Node* node = <Node*> malloc(sizeof(Node))
+    node.index = index
+    node.state = 2
+    node.val = val
+
+
 #Heap methods
 @cython.cdivision(True)
-cdef void insert_node(BinaryHeap* heap, Node* node):# nogil:
+cdef void insert_node(Heap* heap, Node* node) nogil:
     """
     Inserts the input node into the binary heap.
     :param heap: the heap being inserted into
@@ -40,7 +57,7 @@ cdef void insert_node(BinaryHeap* heap, Node* node):# nogil:
     :return: None
     """
     heap.heap[heap.next_available_index] = node
-    node.index = heap.next_available_index
+    node.arr_index = heap.next_available_index
     #Resize using doubling strategy
     heap.next_available_index += 1
     up_heap(heap, node)
@@ -49,33 +66,25 @@ cdef void insert_node(BinaryHeap* heap, Node* node):# nogil:
         heap.heap = <Node** > realloc(heap.heap,  (heap.last_elem+2) * sizeof(Node*))
 
 
-cdef void init_insert_node(BinaryHeap* heap, double val):
-    """
-    Utility method that creates and inserts a given node in one method call.
-    
-    :param heap: BinaryHeap pointer that the node is being inserted to 
-    :param val: Value assigned to the node
-    :return: None
-    """
-    node = initialize_node(heap.next_available_index, val)
-    insert_node(heap, node)
-
-cdef Node* remove_min(BinaryHeap* heap):# nogil:
+cdef Node* remove_min(Heap* heap) nogil:
     """
     Removes the minimum node from the heap and reorganises accordingly.
     :param heap: the heap being removed from
     :return: Pointer to the node with the smallest value currently in the heap
     """
-    # cdef BinaryHeap* heap = heap
-    cdef Node* minim = heap.heap[0]
+    cdef Node* minim
+    if heap.next_available_index == 0:
+        return NULL
+    minim = heap.heap[0]
     heap.heap[0] = heap.heap[heap.next_available_index - 1]
-    heap.heap[0].index = 0
+    heap.heap[0].arr_index = 0
     heap.heap[heap.next_available_index - 1] = NULL
     heap.next_available_index -= 1
-    down_heap(heap, heap.heap[0])
+    if heap.next_available_index != 0:
+        down_heap(heap, heap.heap[0])
     return minim
 
-cdef void decrease_val(BinaryHeap* heap, Node* node, double val):# nogil:
+cdef void decrease_val(Heap* heap, Node* node, DTYPE_t val) nogil:
     """
     Changes the value stored in the input node and restructures the heap accordingly. 
     It should be noted the value can also be increased
@@ -91,7 +100,7 @@ cdef void decrease_val(BinaryHeap* heap, Node* node, double val):# nogil:
         node.val = val
         up_heap(heap, node)
 
-cdef void down_heap(BinaryHeap* heap, Node* node):# nogil:
+cdef void down_heap(Heap* heap, Node* node) nogil:
     """
     Utility method used to maintain heap order. Takes the input node and moves it down the heap (swapping with its children)
     until it is in its correct location.
@@ -99,7 +108,7 @@ cdef void down_heap(BinaryHeap* heap, Node* node):# nogil:
     :param node: Node being adjusted
     :return: nadda
     """
-    cdef int a = node.index
+    cdef int a = node.arr_index
     #Memory safe check to make sure we aren't venturing into unknown territory (uninitialised memory)/child checking
     if 2 * a + 1 > heap.next_available_index-1:
         return
@@ -111,13 +120,13 @@ cdef void down_heap(BinaryHeap* heap, Node* node):# nogil:
         return
     cdef Node* swapped = heap.heap[b]
     #Swapping indices around
-    node.index = b
-    swapped.index = a
+    node.arr_index = b
+    swapped.arr_index = a
     heap.heap[a] = swapped
     heap.heap[b] = node
     down_heap(heap, node)
 
-cdef void up_heap(BinaryHeap* heap, Node* node): #nogil:
+cdef void up_heap(Heap* heap, Node* node) nogil:
     """
     Utility method used to maintain heap order. Takes the input node and moves it up the heap (swapping with its parents)
     until it is in the correct location
@@ -125,32 +134,22 @@ cdef void up_heap(BinaryHeap* heap, Node* node): #nogil:
     :param node: Node being adjusted
     :return: read the function definition
     """
-    cdef int a = node.index
+    cdef int a = node.arr_index
     cdef int b = (a-1)/2
     if a == 0 or node.val >= heap.heap[b].val:
         return
     cdef Node* swapped = heap.heap[b]
     #Swapping indices around
-    node.index = b
-    swapped.index = a
+    node.arr_index = b
+    swapped.arr_index = a
     heap.heap[a] = swapped
     heap.heap[b] = node
     up_heap(heap, node)
 
 #Node methods
-cdef Node* initialize_node(unsigned int index, double val=0):# nogil:
-    """
-    Initialises a node with the input index and value, and returns a pointer to it
-    :param index: position in the heap. 
-    :param val: The value stored in the node
-    :return: Pointer to the Node
-    """
-    cdef Node* node = <Node*> malloc(sizeof(Node))
-    node.index = index
-    node.val = val
-    return node
 
-cdef list heap_to_list(BinaryHeap* heap):
+
+cdef list heap_to_list(Heap* heap):
     """
     Utility method for testing the heap functions correctly. The method takes an input heap and returns a python list
     Since python doesn't support pointers, the values of each Node are put in the position of the node instead of the pointer.
@@ -189,7 +188,7 @@ def execute_python_test(inserts: list, solns: list):
         i+=1
         yield heap_to_list(heap)
 
-cdef death_to_nodes(BinaryHeap* heap):
+cdef void death_to_nodes(Heap* heap):
     """
     Cleanup for all the mallocs.
     :param heap: heap being destroyed
@@ -198,3 +197,15 @@ cdef death_to_nodes(BinaryHeap* heap):
     for i in range(0, heap.next_available_index):
         free(heap.heap[i])
     free(heap)
+
+cdef void init_insert_node(Heap * heap, double val=0) nogil:
+    """
+    Utility method that creates and inserts a given node in one method call.
+
+    :param heap: BinaryHeap pointer that the node is being inserted to 
+    :param val: Value assigned to the node
+    :return: None
+    """
+    cdef Node* node = <Node*> malloc(sizeof(Node))
+    initialize_node(node, heap.next_available_index, val)
+    insert_node(heap, node)

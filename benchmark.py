@@ -21,12 +21,14 @@ except ModuleNotFoundError:
     warnings.warn('plotting is not possible', ImportWarning)
 
 
-def run_bench(algo, project_name, init, func, data, iters: int = 2, repeats: int = 5):
-    stuff = init(*data)
+def run_bench(lib, project_name, init, func, data):
+    print(f"Running {lib} on {project_name} with {data['cores']} core(s)...")
+    stuff = init(data)
     t = timeit.Timer(lambda: func(*stuff))
-    df = pd.DataFrame({"runtime": [x / iters for x in t.repeat(repeat=repeats, number=iters)]})
-    df["library"] = algo
+    df = pd.DataFrame({"runtime": [x / data["iters"] for x in t.repeat(repeat=data["repeats"], number=data["iters"])]})
+    df["library"] = lib
     df["project_name"] = project_name
+    df["cores"] = data['cores']
     df["computer"] = gethostname()
     return df
 
@@ -44,15 +46,14 @@ def main():
                         help="number of times to run each library per sample", metavar="X")
     parser.add_argument("-r", "--repeats", dest="repeats", default=5, type=int,
                         help="number of samples", metavar="Y")
-    parser.add_argument("-c", "--cores", dest="cores", default=0, type=int,
-                        help="number of cores to use. Use 0 for all cores.", metavar="N")
+    parser.add_argument("-c", "--cores", nargs="+", dest="cores", default=0,
+                        help="number of cores to use. Use 0 for all cores.",
+                        type=int, metavar="N")
     parser.add_argument("-l", "--libraries", nargs='+', dest="libraries",
-                        choices=libraries,
-                        default=libraries,
+                        choices=libraries, default=libraries,
                         help="libraries to benchmark")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
-                        default=projects,
-                        help="projects to benchmark using")
+                        default=projects, help="projects to benchmark using")
     parser.add_argument("--cost", dest="cost", default='free_flow_time',
                         help="cost column to skim for")
     parser.add_argument('--no-plots', dest='plots', action='store_false')
@@ -61,14 +62,12 @@ def main():
 
     args = vars(parser.parse_args())
 
-    cost = args["cost"]
-    cores = args["cores"]
-    iterations = args["iters"]
-    repeats = args["repeats"]
     libraries = args['libraries']
     output_path = args["output"]
-    print(f"Now benchmarking {libraries} on the {args['projects']} model/s.")
-    print(f"Running with {iterations} iterations, {repeats} times, for a total of {iterations * repeats} samples.")
+    cores = args["cores"]
+    print(f"Now benchmarking {libraries} on the {args['projects']} model(s).")
+    print(f"Running with {args['iters']} iterations, {args['repeats']}",
+          f"times, for a total of {args['iters'] * args['repeats']} samples.")
     with warnings.catch_warnings():
         # pandas future warnings are really annoying FIXME
         warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -77,54 +76,42 @@ def main():
         results = []
         proj_series = []
         for project_name in args["projects"]:
-            graph, nodes, geo = project_init(f"{args['path']}/{project_name}", cost)
+            args["graph"], args["nodes"], args["geo"] = project_init(f"{args['path']}/{project_name}", args["cost"])
             proj_series.append(pd.DataFrame({
-                "num_links": [graph.compact_num_links],
-                "num_nodes": [graph.compact_num_nodes],
-                "num_zones": [graph.num_zones],
-                "num_centroids": [len(graph.centroids)]
+                "num_links": [args["graph"].compact_num_links],
+                "num_nodes": [args["graph"].compact_num_nodes],
+                "num_zones": [args["graph"].num_zones],
+                "num_centroids": [len(args["graph"].centroids)]
             }, index=[project_name]))
 
-            if "aequilibrae" in libraries:
-                print(f"Running aequilibrae on {project_name}...")
-                results.append(run_bench("aequilibrae", project_name, aequilibrae_init,
-                                         aequilibrae_compute_skim,
-                                         (graph, cost, cores),
-                                         iterations, repeats))
+            for core_count in (range(cores[0], cores[1] + 1) if len(cores) == 2 else cores):
+                args["cores"] = core_count
 
-            if "igraph" in libraries:
-                print(f'Running igraph on {project_name}...')
-                results.append(run_bench("igraph", project_name, igraph_init,
-                                         igraph_compute_skim,
-                                         (graph, cost),
-                                         iterations, repeats))
+                if "aequilibrae" in libraries:
+                    results.append(run_bench("aequilibrae", project_name, aequilibrae_init,
+                                             aequilibrae_compute_skim, args))
 
-            if "pandana" in libraries:
-                print(f"Running pandana on {project_name}...")
-                results.append(run_bench("pandana", project_name, pandana_init,
-                                         pandana_compute,
-                                         (graph, cost, geo),
-                                         iterations, repeats))
+                if "igraph" in libraries:
+                    results.append(run_bench("igraph", project_name, igraph_init,
+                                             igraph_compute_skim, args))
 
-            if "networkit" in libraries:
-                print(f"Running Networkit on {project_name}...")
-                results.append(run_bench("networkit", project_name, networkit_init,
-                                         networkit_compute,
-                                         (graph, cost, cores),
-                                         iterations, repeats))
+                if "pandana" in libraries:
+                    results.append(run_bench("pandana", project_name, pandana_init,
+                                             pandana_compute, args))
 
-            if "graph-tool" in libraries and "graph_tool" in sys.modules:
-                print(f"Running graph-tool on {project_name}...")
-                results.append(run_bench("graph-tool", project_name, graph_tool_init,
-                                         graph_tool_compute_skim,
-                                         (graph, cost, cores),
-                                         iterations, repeats))
+                if "networkit" in libraries:
+                    results.append(run_bench("networkit", project_name, networkit_init,
+                                             networkit_compute, args))
 
-            print("-" * 30)
+                if "graph-tool" in libraries and "graph_tool" in sys.modules:
+                    results.append(run_bench("graph-tool", project_name, graph_tool_init,
+                                             graph_tool_compute_skim, args))
+
+                print("-" * 30)
 
         proj_summary = pd.concat(proj_series)
         results = pd.concat(results)
-        summary = results.groupby(["project_name", "library"]).agg(
+        summary = results.groupby(["project_name", "library", "cores"]).agg(
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         print(summary)
@@ -135,7 +122,6 @@ def main():
             benchmark_chart(summary, args["projects"], libraries).write_image(f"{output_path}/Benchmark_proj.png", width=1000, height=800)
             aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
                        libraries).write_image(f"{output_path}/Benchmark_ratios.png", width=1000, height=800)
-
 
 
 if __name__ == "__main__":

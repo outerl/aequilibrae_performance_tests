@@ -19,18 +19,20 @@ def graph_tool_compute_skim(graph, centroids, eweight):
     return results
 
 
-def graph_tool_init(graph, cost: str, cores: int = 1):
+def graph_tool_init(data):
     """
     Prepare the aequilibrae graph for computation with graph_tool.
     """
+    graph = data["graph"]
+    cost = data["cost"]
+    cores = data["cores"]
     gt.openmp_set_num_threads(cores)
-    edges = graph.compact_graph.loc[:, ("a_node", "b_node")]
-    edges[cost] = graph.compact_cost[:-1]  # FIXME: as of writing, a partially fixed bug in aequilibrae causes graph.compact_cost
-    # to contain an additional 0 at the end. This slicing avoids that.
+    graph.set_graph(cost)
+    edges = graph.compact_graph[["a_node", "b_node"]] #.itertuples(index=False, name=None)
     g = gt.Graph()
     eweight = g.new_edge_property("double")
-    g.add_edge_list(edges.itertuples(index=False, name=None), eprops=[eweight])
-    return g, graph.compact_nodes_to_indices[graph.centroids], eweight
+    g.add_edge_list(edges, eprops=[eweight])
+    return g, graph.nodes_to_indices[graph.centroids], eweight
 
 
 def graph_tool_testing(graph, cost: str, cores: int = 0, iters: int = 2, repeats: int = 5):

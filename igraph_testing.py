@@ -13,10 +13,12 @@ def igraph_compute_skim(graph, centroids, weights):
     return np.array(graph.distances(source=centroids, target=centroids, weights=weights, mode="out"))
 
 
-def igraph_init(graph, cost: str):
+def igraph_init(data):
     """
     Prepare the aequilibrae graph for computation with igraph.
     """
+    graph = data["graph"]
+    cost = data["cost"]
     # We get the graph
     # NOTE: These are 1-indexed, igraph uses 0-indexing. All names or indexs will be
     # one off

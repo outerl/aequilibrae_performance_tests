@@ -1,13 +1,15 @@
-import aequilibrae as ae
 import pandana as pnd
 import pandas as pd
 import timeit
 
 
-def pandana_init(graph: ae.Graph, cost: str, geo):
+def pandana_init(data):
     """
     Initialises the pandana network, executes each individual benchmark
     """
+    graph = data["graph"]
+    cost = data["cost"]
+    geo = data["geo"]
     graph.set_graph(cost)
     pnet = pnd.Network(geo[:, 0], geo[:, 1], graph.compact_graph["a_node"], graph.compact_graph["b_node"],
                        pd.DataFrame(graph.compact_cost), twoway=False)

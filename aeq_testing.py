@@ -10,10 +10,13 @@ def aequilibrae_compute_skim(graph, cores):
     return skm.results.skims
 
 
-def aequilibrae_init(graph, cost: str, cores: int = 0):
+def aequilibrae_init(data):
     """
     Prepare the graph for skimming the network for `cost`
     """
+    graph = data["graph"]
+    cost = data["cost"]
+    cores = data["cores"]
     graph.prepare_graph(graph.centroids)
     # let's say we want to minimize the cost
     graph.set_graph(cost)

@@ -6,10 +6,13 @@ import numpy as np
 import timeit
 
 
-def networkit_init(graph: ae.Graph, cost: str, cores: int = 1):
+def networkit_init(data):
     """
     Initialises the pandana network, executes each individual benchmark
     """
+    graph = data["graph"]
+    cost = data["cost"]
+    cores = data["cores"]
     # Setting up the compressed graph to be tested, assuming the graph exists
     graph.set_graph(cost)
     networkit.setNumberOfThreads(cores)

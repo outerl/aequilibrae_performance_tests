@@ -10,7 +10,6 @@ import pandas as pd
 from jinja2 import Environment, PackageLoader
 
 
-
 def render_template(aeq_path: str, heap_path: str, min_elem_checker):
     heap_type = heap_path.split("/")[-1]
     env = Environment(loader=PackageLoader("benchmark", "templates"))
@@ -46,7 +45,7 @@ def validate(args):
 def main():
     projects = ["sioux_falls", "chicago_sketch"]
     parser = ArgumentParser()
-    parser.add_argument("-a", "--aequilibrae-path", dest="source",
+    parser.add_argument("-a", "--aequilibrae-path", dest="source", required=True,
                         help="path to aequilibrae source", metavar="FILE")
     parser.add_argument("-m", "--model-path", dest="path", default='../models',
                         help="path to models", metavar="FILE")
@@ -89,7 +88,7 @@ def main():
 
         print("Rendering ", heap.split(".")[0])
         relative_heap_path = "heaps/"
-        render_template(args["source"], relative_heap_path + heap, min_elem_checker)
+        render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
         print("Compiling...")
         subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
                        cwd=os.path.join(args["source"], "aequilibrae", "paths"))

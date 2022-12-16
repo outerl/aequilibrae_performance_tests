@@ -10,7 +10,7 @@
 #    IN_HEAP=3
 cimport cython
 #import cython
-from libc.stdlib cimport malloc
+from libc.stdlib cimport malloc, free
 
 include 'parameters.pxi'
 #distutils: c++
@@ -216,3 +216,12 @@ cdef Node* remove_min(Heap* heap) nogil:
         link(heap, temp)
         temp = temp_right
     return out
+
+#Utility ot free the heap
+cdef void death_to_nodes(Heap* heap):
+    """
+    Cleanup for all the mallocs.
+    :param heap: heap being destroyed
+    :return: nothing
+    """
+    free(&heap)

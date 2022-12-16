@@ -26,7 +26,7 @@ cdef struct Heap:
     #The number of indices that have been allocated, used for dynamic memory allocation
     int last_elem
 
-cdef Heap* initialize_heap(int num_nodes) nogil:
+cdef Heap* initialize_heap(unsigned int num_nodes) nogil:
     #TODO: memset as zeros
     cdef Heap* a = <Heap*> malloc(sizeof(Heap))
     a.heap = <Node**> malloc(num_nodes * sizeof(Node*))
@@ -41,7 +41,6 @@ cdef void initialize_node(Node* node, ITYPE_t index, DTYPE_t val=0) nogil:
     :param val: The value stored in the node
     :return: Pointer to the Node
     """
-    #cdef Node* node = <Node*> malloc(sizeof(Node))
     node.index = index
     node.state = 2
     node.val = val
@@ -194,9 +193,8 @@ cdef void death_to_nodes(Heap* heap):
     :param heap: heap being destroyed
     :return: nothing
     """
-    for i in range(0, heap.next_available_index):
-        free(heap.heap[i])
-    free(heap)
+    free(heap.heap)
+    free(&heap)
 
 cdef void init_insert_node(Heap * heap, double val=0) nogil:
     """

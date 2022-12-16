@@ -12,10 +12,10 @@ from jinja2 import Environment, PackageLoader
 
 
 def render_template(aeq_path: str, heap_path: str, min_elem_checker):
-    heap_type = heap_path.split("/")[-1]
-    env = Environment(loader=PackageLoader("benchmark", "templates"))
+    heap_type = heap_path.split("\\")[-1]
+    env = Environment(loader=PackageLoader("heap_benchmark", "templates"))
     template = env.get_template("pathfinding_template.html.jinja")
-    out = template.render(HEAP_PATH=f"'{heap_path}'", 
+    out = template.render(HEAP_PATH=f"'{heap_type}'",
                           MIN_ELEM=min_elem_checker.get(heap_type, "heap.next_available_index != 0"),
                           # PARAM="include 'parameters.pxi'" if min_elem_checker.get(heap_type, None) is None else ""
                           )
@@ -81,7 +81,7 @@ def main():
     #validate(heaps)
     print(heaps)
     with tempfile.TemporaryDirectory() as tmpdirname:
-        for heap in [heaps[1]]:
+        for heap in heaps:
             if "kheap.pyx" in heap and heap in "kheap.pyx":
                 print(heap + " is the jinja kheap")
                 env = Environment(loader=PackageLoader("benchmark", "templates"))
@@ -94,7 +94,7 @@ def main():
             render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
             print("Compiling...")
             subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
-                        cwd=os.path.join(args["source"], "aequilibrae", "paths"))
+                        cwd=os.path.join(args["source"], "aequilibrae", "paths"),  shell=True, env=os.environ)
             print("Compilation complete")
             subprocess.run(["python", r"benchmark.py",
                             "--model-path", args["path"],
@@ -106,7 +106,7 @@ def main():
                             "--projects", *args["projects"],
                             "--cost", args["cost"],
                             "--plots" if args["plots"] else "--no-plots",
-                            "--details", heap.split(".")[0]])
+                            "--details", heap.split(".")[0]], shell=True, env=os.environ)
         print("made it this far")
         make_results(tmpdirname)
 

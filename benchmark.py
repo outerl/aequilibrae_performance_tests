@@ -120,11 +120,6 @@ def main():
         print(summary)
         results.to_csv(f"{output_path}/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
         proj_summary.to_csv(f"{output_path}/project summary.csv")
-        if args['plots']:
-            largest_proj = proj_summary["num_nodes"].idxmax()
-            benchmark_chart(summary, args["projects"], libraries).write_image(f"{output_path}/Benchmark_proj.png", width=1000, height=800)
-            aeq_ratios(summary, proj_summary, summary.loc[largest_proj, "min"].idxmin(),
-                       libraries).write_image(f"{output_path}/Benchmark_ratios.png", width=1000, height=800)
 
 
 if __name__ == "__main__":

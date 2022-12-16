@@ -3,8 +3,6 @@ import os
 import subprocess
 from argparse import ArgumentParser
 import tempfile
-from shutil import copyfile
-from os.path import join, isfile
 import warnings
 
 import pandas as pd
@@ -74,7 +72,8 @@ def main():
 
     path_to_heaps = "heaps/"
 
-    heaps = [f for f in os.listdir(path_to_heaps) if isfile(os.path.join(path_to_heaps, f)) and f.endswith('.pyx')]
+    heaps = [f for f in os.listdir(path_to_heaps) if os.path.isfile(os.path.join(path_to_heaps, f)) and f.endswith('.pyx')]
+
     min_elem_checker = {
         "fibonacci.pyx": "heap.min_node"
     }
@@ -124,6 +123,3 @@ if __name__ == "__main__":
     with warnings.catch_warnings():
         warnings.simplefilter(action="ignore", category=FutureWarning)
         main()
-
-
-

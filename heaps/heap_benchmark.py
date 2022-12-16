@@ -12,15 +12,16 @@ from jinja2 import Environment, PackageLoader
 
 
 def render_template(aeq_path: str, heap_path: str, min_elem_checker):
-    heap_type = heap_path.split("\\")[-1]
+    heap_type = os.path.basename(heap_path)
+    if os.name == "nt":
+        real_path = heap_path.replace("\\", "\\\\")
+    else:
+        real_path = heap_path
     print("checker ", min_elem_checker.get(heap_type))
-    real_path = heap_path.replace("\\", "\\\\")
     env = Environment(loader=PackageLoader("heap_benchmark", "templates"))
     template = env.get_template("pathfinding_template.html.jinja")
     out = template.render(HEAP_PATH=f"""'{real_path}'""",
-                          MIN_ELEM=min_elem_checker.get(heap_type, "heap.next_available_index != 0"),
-                          # PARAM="include 'parameters.pxi'" if min_elem_checker.get(heap_type, None) is None else ""
-                          )
+                          MIN_ELEM=min_elem_checker.get(heap_type, "heap.next_available_index != 0"))
     with open(os.path.join(aeq_path, 'aequilibrae/paths/basic_path_finding.pyx'), 'w') as f:
         f.write(out)
 
@@ -96,9 +97,10 @@ def main():
             render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
             print("Compiling...")
             subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
-                        cwd=os.path.join(args["source"], "aequilibrae", "paths"),  shell=True, env=os.environ)
+                           cwd=os.path.join(args["source"], "aequilibrae", "paths"),  shell=(os.name == 'nt'), env=os.environ,
+                           check=True)
             print("Compilation complete")
-            subprocess.run(["python", r"benchmark.py",
+            subprocess.run(["python", "benchmark.py",
                             "--model-path", args["path"],
                             "--output-path", tmpdirname,
                             "--iterations", str(args["iters"]),
@@ -108,7 +110,7 @@ def main():
                             "--projects", *args["projects"],
                             "--cost", args["cost"],
                             "--plots" if args["plots"] else "--no-plots",
-                            "--details", heap.split(".")[0]], shell=True, env=os.environ)
+                            "--details", heap.split(".")[0]], shell=(os.name == 'nt'), env=os.environ, check=True)
         print("made it this far")
         make_results(tmpdirname)
 

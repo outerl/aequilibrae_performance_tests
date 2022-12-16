@@ -94,9 +94,16 @@ def main():
             print("Rendering ", heap.split(".")[0])
             render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
             print("Compiling...")
-            subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
+            compiler = subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
                            cwd=os.path.join(args["source"], "aequilibrae", "paths"),  shell=(os.name == 'nt'), env=os.environ,
-                           check=True)
+                                      capture_output=True)
+            if compiler.returncode:
+                print("-" * 30, "stdout", "-" * 30)
+                print(compiler.stdout.decode("utf-8"))
+                print("-" * 30, "stderr", "-" * 30)
+                print(compiler.stderr.decode("utf-8"))
+                print("-" * 68)
+                compiler.check_returncode()
             print("Compilation complete")
             subprocess.run(["python", "benchmark.py",
                             "--model-path", args["path"],
@@ -109,6 +116,7 @@ def main():
                             "--cost", args["cost"],
                             "--plots" if args["plots"] else "--no-plots",
                             "--details", heap.split(".")[0]], shell=(os.name == 'nt'), env=os.environ, check=True)
+            print("\n\n")
         make_results(tmpdirname, args["output"])
 
 

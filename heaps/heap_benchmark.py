@@ -81,10 +81,10 @@ def main():
     #validate(heaps)
     print(heaps)
     with tempfile.TemporaryDirectory() as tmpdirname:
-        for heap in heaps:
+        for heap in [heaps[2]]:
             if "kheap.pyx" in heap and heap in "kheap.pyx":
                 print(heap + " is the jinja kheap")
-                env = Environment(loader=PackageLoader("benchmark", "templates"))
+                env = Environment(loader=PackageLoader("heap_benchmark", "templates"))
                 template = env.get_template("k_heap.jinja")
                 out = template.render(K=8)
                 with open(os.path.abspath(os.path.join(relative_heap_path, heap)), 'w') as f:

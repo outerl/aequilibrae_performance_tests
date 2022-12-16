@@ -43,7 +43,7 @@ def validate(args):
     subprocess.run(["python", r"validation.py",
                     "--model-path", args["path"],
                     "--libaries", "aequilibrae igraph"
-                    "--projects", " ".join(args["projects"]),
+                    "--projects", *args["projects"],
                     "--cost", args["cost"]])
 
 

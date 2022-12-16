@@ -92,7 +92,8 @@ def main():
             render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
             print("Compiling...")
             compiler = subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
-                           cwd=os.path.join(args["source"], "aequilibrae", "paths"),  shell=(os.name == 'nt'), env=os.environ,
+                                      cwd=os.path.join(args["source"], "aequilibrae", "paths"),
+                                      shell=(os.name == 'nt'), env=os.environ,
                                       capture_output=True)
             if compiler.returncode:
                 print("-" * 30, "stdout", "-" * 30)
@@ -111,7 +112,8 @@ def main():
                             "--libraries", "aequilibrae",
                             "--projects", *args["projects"],
                             "--cost", args["cost"],
-                            "--details", heap.split(".")[0]], shell=(os.name == 'nt'), env=os.environ, check=True)
+                            "--details", heap.split(".")[0]],
+                           shell=(os.name == 'nt'), env=os.environ, check=True)
             print("\n\n")
         make_results(tmpdirname, args["output"])
 

@@ -29,7 +29,7 @@ RUN conda init bash && \
     pip install -r ./aequilibrae/requirements.txt && \
     pip install -r ./aequilibrae/requirements_additional.txt && \
     cd ./aequilibrae/aequilibrae/paths && python setup_assignment.py build_ext --inplace && cd / && \
-    pip install ./aequilibrae
+    pip install -e ./aequilibrae
 
 RUN git clone --depth 1 https://github.com/outerl/aequilibrae_performance_tests
 

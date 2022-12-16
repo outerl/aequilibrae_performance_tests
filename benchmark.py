@@ -48,7 +48,7 @@ def main():
                         help="number of times to run each library per sample", metavar="X")
     parser.add_argument("-r", "--repeats", dest="repeats", default=5, type=int,
                         help="number of samples", metavar="Y")
-    parser.add_argument("-c", "--cores", nargs="+", dest="cores", default=0,
+    parser.add_argument("-c", "--cores", nargs="+", dest="cores", default=[0],
                         help="number of cores to use. Use 0 for all cores.",
                         type=int, metavar="N")
     parser.add_argument("-l", "--libraries", nargs='+', dest="libraries",

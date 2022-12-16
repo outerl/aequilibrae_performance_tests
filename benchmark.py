@@ -55,7 +55,7 @@ def main():
                         default=projects, help="projects to benchmark using")
     parser.add_argument("--cost", dest="cost", default='distance',
                         help="cost column to skim for")
-    parser.add_argument('--no-plots', dest='plots', action='store_false')
+    parser.add_argument('--details', dest='details')
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 from pathlib import Path
 from socket import gethostname
 from argparse import ArgumentParser
@@ -36,7 +37,7 @@ def run_bench(lib, project_name, init, func, data):
 
 
 def main():
-    projects = ["sioux_falls", "chicago_sketch"]
+    projects = ["sioux_falls", "chicago_sketch", "LongAn"]
     libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
 
     parser = ArgumentParser()
@@ -118,9 +119,9 @@ def main():
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         print(summary)
-        results.to_csv(f"{output_path}/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
-        proj_summary.to_csv(f"{output_path}/project summary.csv")
-
-
+        results.to_csv(os.path.join(output_path, f"{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv"))
+            #f"{output_path}/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
+        #proj_summary.to_csv(os.path.join(output_path, "project summary.csv"))
+            #f"{output_path}/project summary.csv", )
 if __name__ == "__main__":
     main()

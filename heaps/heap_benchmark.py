@@ -13,9 +13,11 @@ from jinja2 import Environment, PackageLoader
 
 def render_template(aeq_path: str, heap_path: str, min_elem_checker):
     heap_type = heap_path.split("\\")[-1]
+    print("checker ", min_elem_checker.get(heap_type))
+    real_path = heap_path.replace("\\", "\\\\")
     env = Environment(loader=PackageLoader("heap_benchmark", "templates"))
     template = env.get_template("pathfinding_template.html.jinja")
-    out = template.render(HEAP_PATH=f"'{heap_type}'",
+    out = template.render(HEAP_PATH=f"""'{real_path}'""",
                           MIN_ELEM=min_elem_checker.get(heap_type, "heap.next_available_index != 0"),
                           # PARAM="include 'parameters.pxi'" if min_elem_checker.get(heap_type, None) is None else ""
                           )
@@ -45,7 +47,7 @@ def validate(args):
 
 
 def main():
-    projects = ["sioux_falls", "chicago_sketch"]
+    projects = ["sioux_falls", "chicago_sketch", "LongAn"]
     parser = ArgumentParser()
     parser.add_argument("-a", "--aequilibrae-path", dest="source", required=True,
                         help="path to aequilibrae source", metavar="FILE")
@@ -81,7 +83,7 @@ def main():
     #validate(heaps)
     print(heaps)
     with tempfile.TemporaryDirectory() as tmpdirname:
-        for heap in [heaps[2]]:
+        for heap in heaps:
             if "kheap.pyx" in heap and heap in "kheap.pyx":
                 print(heap + " is the jinja kheap")
                 env = Environment(loader=PackageLoader("heap_benchmark", "templates"))

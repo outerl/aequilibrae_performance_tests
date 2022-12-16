@@ -245,7 +245,7 @@ cpdef void skim_multiple_fields(long origin,
 
 @cython.wraparound(False)
 @cython.embedsignature(True)
-@cython.boundscheck(False) # turn of bounds-checking for entire function
+@cython.boundscheck(False)
 cpdef int path_finding(long origin,
                        double[:] graph_costs,
                        long long [:] csr_indices,

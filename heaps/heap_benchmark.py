@@ -25,7 +25,7 @@ def render_template(aeq_path: str, heap_path: str, min_elem_checker):
         f.write(out)
 
 
-def make_results(path_to_csvs):
+def make_results(path_to_csvs: str, save_location: str):
     csvs = [f for f in os.listdir(path_to_csvs) if f.endswith('.csv')]
     data = []
     for csv in csvs:
@@ -34,7 +34,7 @@ def make_results(path_to_csvs):
     summary = pd.concat(data).groupby(["project_name", "details", "cores"]).agg(
         average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
     )
-    summary.to_csv("summary.csv")
+    summary.to_csv(os.path.join(save_location, "summary.csv"))
     print(summary)
 
 
@@ -109,7 +109,7 @@ def main():
                             "--cost", args["cost"],
                             "--plots" if args["plots"] else "--no-plots",
                             "--details", heap.split(".")[0]], shell=(os.name == 'nt'), env=os.environ, check=True)
-        make_results(tmpdirname)
+        make_results(tmpdirname, args["output"])
 
 
 if __name__ == "__main__":

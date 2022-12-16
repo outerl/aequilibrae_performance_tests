@@ -64,8 +64,6 @@ def main():
                         default=projects, help="projects to benchmark using")
     parser.add_argument("--cost", dest="cost", default='free_flow_time',
                         help="cost column to skim for")
-    parser.add_argument('--no-plots', dest='plots', action='store_false')
-    parser.add_argument('--plots', dest='plots', action='store_true')
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())
@@ -113,7 +111,6 @@ def main():
                             "--libraries", "aequilibrae",
                             "--projects", *args["projects"],
                             "--cost", args["cost"],
-                            "--plots" if args["plots"] else "--no-plots",
                             "--details", heap.split(".")[0]], shell=(os.name == 'nt'), env=os.environ, check=True)
             print("\n\n")
         make_results(tmpdirname, args["output"])

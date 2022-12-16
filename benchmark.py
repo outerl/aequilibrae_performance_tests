@@ -16,10 +16,6 @@ from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
 from igraph_testing import igraph_init, igraph_compute_skim
 from networkit_testing import networkit_init, networkit_compute
 from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
-try:
-    from plot_results import benchmark_chart, aeq_ratios
-except ModuleNotFoundError:
-    warnings.warn('plotting is not possible', ImportWarning)
 
 
 def run_bench(lib, project_name, init, func, data):
@@ -57,11 +53,9 @@ def main():
                         help="libraries to benchmark")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
                         default=projects, help="projects to benchmark using")
-    parser.add_argument("--cost", dest="cost", default='free_flow_time',
+    parser.add_argument("--cost", dest="cost", default='distance',
                         help="cost column to skim for")
     parser.add_argument('--no-plots', dest='plots', action='store_false')
-    parser.add_argument('--plots', dest='plots', action='store_true')
-    parser.add_argument('--details', dest='details')
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())

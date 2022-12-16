@@ -11,6 +11,7 @@
 cimport cython
 #import cython
 from libc.stdlib cimport malloc
+
 include 'parameters.pxi'
 #distutils: c++
 
@@ -28,6 +29,7 @@ cdef struct Node:
 cdef Heap* initialize_heap(int num_children) nogil:
     cdef Heap* heap
     heap = <Heap*> malloc(sizeof(Heap))
+    heap.min_node = NULL
     return heap
 
 cdef void initialize_node(Node* node,
@@ -167,9 +169,7 @@ cdef void link(Heap* heap, Node* node) nogil:
             add_child(linknode, node)
             link(heap, linknode)
 
-@cython.wraparound(False)
-@cython.embedsignature(True)
-@cython.boundscheck(False) # turn of bounds-checking for entire function
+
 cdef Node* remove_min(Heap* heap) nogil:
     # Assumptions: - heap is a valid pointer
     #              - heap.min_node is a valid pointer

@@ -14,7 +14,7 @@ RUN apt-get update -y && \
 RUN conda init bash && \
     source "/opt/conda/bin/activate" && \
     conda activate benchmarking && \
-    pip install plotly kaleido
+    pip install jinja2
 
 # igraph, pandana, and networkit setup
 RUN conda init bash && \

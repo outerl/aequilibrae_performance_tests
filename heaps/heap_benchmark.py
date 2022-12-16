@@ -62,7 +62,7 @@ def main():
                         type=int, metavar="N")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
                         default=projects, help="projects to benchmark using")
-    parser.add_argument("--cost", dest="cost", default='free_flow_time',
+    parser.add_argument("--cost", dest="cost", default='distance',
                         help="cost column to skim for")
     parser.set_defaults(feature=True)
 

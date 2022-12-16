@@ -103,7 +103,7 @@ def main():
                 print("-" * 68)
                 compiler.check_returncode()
             print("Compilation complete")
-            subprocess.run(["python", "benchmark.py",
+            subprocess.run(["python", "-u", "benchmark.py",
                             "--model-path", args["path"],
                             "--output-path", tmpdirname,
                             "--iterations", str(args["iters"]),

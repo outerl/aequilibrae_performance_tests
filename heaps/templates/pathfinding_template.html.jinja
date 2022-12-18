@@ -307,5 +307,6 @@ cpdef int path_finding(long origin,
                     connectors[j_current] = ids[j]
 
     free(nodes)
+    free(heap.heap)
     free(heap)
     return found -1

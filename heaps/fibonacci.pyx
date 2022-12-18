@@ -30,6 +30,8 @@ cdef Heap* initialize_heap(int num_children) nogil:
     cdef Heap* heap
     heap = <Heap*> malloc(sizeof(Heap))
     heap.min_node = NULL
+    heap.heap = NULL  # This value should never be over written. It is here to simply the freeing logic
+    # while we are testing. Freeing a NULL pointer is a no-op.
     return heap
 
 cdef void initialize_node(Node* node,
@@ -115,6 +117,7 @@ cdef void remove(Node* node) nogil:
 ctypedef Node* pFibonacciNode
 
 cdef struct Heap:
+    Node* heap
     Node* min_node
     pFibonacciNode[100] roots_by_rank  # maximum number of nodes is ~2^100.
 

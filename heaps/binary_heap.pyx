@@ -187,7 +187,7 @@ def execute_python_test(inserts: list, solns: list):
         i+=1
         yield heap_to_list(heap)
 
-cdef void death_to_nodes(Heap* heap):
+cdef void death_to_nodes(Heap* heap) nogil:
     """
     Cleanup for all the mallocs.
     :param heap: heap being destroyed

@@ -218,10 +218,10 @@ cdef Node* remove_min(Heap* heap) nogil:
     return out
 
 #Utility ot free the heap
-cdef void death_to_nodes(Heap* heap):
+cdef void death_to_nodes(Heap* heap) nogil:
     """
     Cleanup for all the mallocs.
     :param heap: heap being destroyed
     :return: nothing
     """
-    free(&heap)
+    free(heap)

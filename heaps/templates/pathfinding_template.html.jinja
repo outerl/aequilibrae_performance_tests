@@ -262,9 +262,12 @@ cpdef int path_finding(long origin,
     cdef int found = 0
     cdef long j
     cdef double weight
-
     cdef Heap* heap
-
+    if N < 100:
+        heap = initialize_heap(N)
+    else:
+        heap = initialize_heap(100)
+    cdef int max_heap_size = 0
     heap = initialize_heap(N)
     cdef Node *v
     cdef Node *current_node

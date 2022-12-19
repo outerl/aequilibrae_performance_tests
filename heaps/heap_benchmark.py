@@ -76,6 +76,7 @@ def main():
                         type=int, metavar="N")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
                         default=projects, help="projects to benchmark using")
+    parser.add_argument("--heaps", nargs='+', dest="heaps", help="heaps to benchmark")
     parser.add_argument("--cost", dest="cost", default='distance',
                         help="cost column to skim for")
     parser.add_argument("--validate", dest="validate", default=False, action="store_true",
@@ -87,6 +88,8 @@ def main():
     path_to_heaps = "heaps/"
 
     heaps = [f for f in os.listdir(path_to_heaps) if os.path.isfile(os.path.join(path_to_heaps, f)) and f.endswith('.pyx')]
+    if args["heaps"]:
+        heaps = [f for f in heaps if any(f.startswith(x) for x in args["heaps"])]
 
     min_elem_checker = {
         "fibonacci.pyx": "heap.min_node"

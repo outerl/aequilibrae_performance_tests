@@ -39,9 +39,23 @@ def make_results(path_to_csvs: str, save_location: str):
 def validate(args):
     subprocess.run(["python", r"validation.py",
                     "--model-path", args["path"],
-                    "--libaries", "aequilibrae igraph"
+                    "--libraries", "igraph", "aequilibrae",
                     "--projects", *args["projects"],
                     "--cost", args["cost"]])
+
+
+def benchmark(args, tmpdirname, heap):
+    subprocess.run(["python", "-u", "benchmark.py",
+                    "--model-path", args["path"],
+                    "--output-path", tmpdirname,
+                    "--iterations", str(args["iters"]),
+                    "--repeats", str(args["repeats"]),
+                    "--cores", *(str(x) for x in args["cores"]),
+                    "--libraries", "aequilibrae",
+                    "--projects", *args["projects"],
+                    "--cost", args["cost"],
+                    "--details", heap.split(".")[0]],
+                   shell=(os.name == 'nt'), env=os.environ, check=True)
 
 
 def main():
@@ -64,6 +78,8 @@ def main():
                         default=projects, help="projects to benchmark using")
     parser.add_argument("--cost", dest="cost", default='distance',
                         help="cost column to skim for")
+    parser.add_argument("--validate", dest="validate", default=False, action="store_true",
+                        help="enable validation instead of benchmarking")
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())
@@ -77,7 +93,6 @@ def main():
     }
     relative_heap_path = "heaps/"
 
-    #validate(heaps)
     print(heaps)
     with tempfile.TemporaryDirectory() as tmpdirname:
         for heap in heaps:
@@ -103,19 +118,14 @@ def main():
                 print("-" * 68)
                 compiler.check_returncode()
             print("Compilation complete")
-            subprocess.run(["python", "-u", "benchmark.py",
-                            "--model-path", args["path"],
-                            "--output-path", tmpdirname,
-                            "--iterations", str(args["iters"]),
-                            "--repeats", str(args["repeats"]),
-                            "--cores", *(str(x) for x in args["cores"]),
-                            "--libraries", "aequilibrae",
-                            "--projects", *args["projects"],
-                            "--cost", args["cost"],
-                            "--details", heap.split(".")[0]],
-                           shell=(os.name == 'nt'), env=os.environ, check=True)
+            if args["validate"]:
+                validate(args)
+            else:
+                benchmark(args, tmpdirname, heap)
             print("\n\n")
-        make_results(tmpdirname, args["output"])
+
+        if not args["validate"]:
+            make_results(tmpdirname, args["output"])
 
 
 if __name__ == "__main__":

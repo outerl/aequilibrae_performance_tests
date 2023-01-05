@@ -1,11 +1,31 @@
-cimport numpy as np
-import numpy as np
+import numpy as np 
+from libc.math cimport INFINITY
 
-DTYPE = np.float64
-ctypedef np.float64_t DTYPE_t
+ctypedef double DTYPE_t
+cdef DTYPE_t DTYPE_INF
 
-ITYPE = np.int64
-ctypedef np.int64_t ITYPE_t
+cdef enum ElementState:
+   SCANNED
+   NOT_IN_HEAP
+   IN_HEAP
+
+cdef struct Element:
+    DTYPE_t key
+    ElementState state
+    size_t node_idx
+
+cdef struct PriorityQueue:
+    size_t length  # number of elements in the array
+    size_t size  # number of elements in the heap
+    size_t* A  # array storing the binary tree
+    Element* Elements  # array storing the elements
+    DTYPE_t* keys
+
+cdef DTYPE = np.float64
+DTYPE_INF = INFINITY
+DTYPE_INF_PY = DTYPE_INF
+
+ctypedef long long ITYPE_t
 
 # EPS is the precision of DTYPE
 cdef DTYPE_t DTYPE_EPS = 1E-15

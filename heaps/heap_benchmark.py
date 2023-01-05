@@ -9,16 +9,17 @@ import pandas as pd
 from jinja2 import Environment, PackageLoader
 
 
-def render_template(aeq_path: str, heap_path: str, min_elem_checker):
+def render_template(aeq_path: str, heap_path: str, min_elem_checker, template_file: str):
     heap_type = os.path.basename(heap_path)
     if os.name == "nt":
         real_path = heap_path.replace("\\", "\\\\")
     else:
         real_path = heap_path
     env = Environment(loader=PackageLoader("heap_benchmark", "templates"))
-    template = env.get_template("pathfinding_template.html.jinja")
+
+    template = env.get_template(template_file)
     out = template.render(HEAP_PATH=f"""'{real_path}'""",
-                          MIN_ELEM=min_elem_checker.get(heap_type, "heap.next_available_index != 0"))
+                        MIN_ELEM=min_elem_checker.get(heap_type, "heap.next_available_index != 0"))
     with open(os.path.join(aeq_path, 'aequilibrae/paths/basic_path_finding.pyx'), 'w') as f:
         f.write(out)
 
@@ -77,6 +78,10 @@ def main():
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
                         default=projects, help="projects to benchmark using")
     parser.add_argument("--heaps", nargs='+', dest="heaps", help="heaps to benchmark")
+    parser.add_argument("--heap-path", dest="heaps-path", default='heaps/',
+                        help="where to find heasp to benchmark", metavar="FILE")
+    parser.add_argument("--template", dest="template", default='pathfinding_template.html.jinja',
+                        help="jinja template to use", metavar="FILE")
     parser.add_argument("--cost", dest="cost", default='distance',
                         help="cost column to skim for")
     parser.add_argument("--validate", dest="validate", default=False, action="store_true",
@@ -85,29 +90,29 @@ def main():
 
     args = vars(parser.parse_args())
 
-    path_to_heaps = "heaps/"
+    path_to_heaps = args["heaps-path"]
 
     heaps = [f for f in os.listdir(path_to_heaps) if os.path.isfile(os.path.join(path_to_heaps, f)) and f.endswith('.pyx')]
     if args["heaps"]:
         heaps = [f for f in heaps if any(f.startswith(x) for x in args["heaps"])]
 
     min_elem_checker = {
-        "fibonacci.pyx": "heap.min_node"
+        "fibonacci.pyx": "heap.min_node",
     }
-    relative_heap_path = "heaps/"
 
     print(heaps)
     with tempfile.TemporaryDirectory() as tmpdirname:
         for heap in heaps:
-            if "kheap.pyx" in heap and heap in "kheap.pyx":
+            if "kheap.pyx" == heap:
                 env = Environment(loader=PackageLoader("heap_benchmark", "templates"))
                 template = env.get_template("k_heap.jinja")
                 out = template.render(K=8)
-                with open(os.path.abspath(os.path.join(relative_heap_path, heap)), 'w') as f:
+                with open(os.path.abspath(os.path.join(path_to_heaps, heap)), 'w') as f:
                     f.write(out)
 
             print("Rendering ", heap.split(".")[0])
-            render_template(args["source"], os.path.abspath(os.path.join(relative_heap_path, heap)), min_elem_checker)
+            render_template(args["source"], os.path.abspath(os.path.join(path_to_heaps, heap)),
+                            min_elem_checker, args["template"])
             print("Compiling...")
             compiler = subprocess.run(["python", "setup_assignment.py", "build_ext", "--inplace"],
                                       cwd=os.path.join(args["source"], "aequilibrae", "paths"),

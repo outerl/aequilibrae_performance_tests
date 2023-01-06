@@ -86,6 +86,8 @@ def main():
                         help="cost column to skim for")
     parser.add_argument("--validate", dest="validate", default=False, action="store_true",
                         help="enable validation instead of benchmarking")
+    parser.add_argument("--dry-run", dest="dry", default=False, action="store_true",
+                        help="If enabled no benchmarking will be performance, only compilation")
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())
@@ -126,10 +128,11 @@ def main():
                 print("-" * 68)
                 compiler.check_returncode()
             print("Compilation complete")
-            if args["validate"]:
-                validate(args)
-            else:
-                benchmark(args, tmpdirname, heap)
+            if not args["dry"]:
+                if args["validate"]:
+                    validate(args)
+                else:
+                    benchmark(args, tmpdirname, heap)
             print("\n\n")
 
         if not args["validate"]:

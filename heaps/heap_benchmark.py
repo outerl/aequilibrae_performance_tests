@@ -135,7 +135,7 @@ def main():
                     benchmark(args, tmpdirname, heap)
             print("\n\n")
 
-        if not args["validate"]:
+        if not args["validate"] and not args["dry"]:
             make_results(tmpdirname, args["output"])
 
 

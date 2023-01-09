@@ -4,6 +4,7 @@ import subprocess
 from argparse import ArgumentParser
 import tempfile
 import warnings
+from datetime import datetime
 
 import pandas as pd
 from jinja2 import Environment, PackageLoader
@@ -33,7 +34,9 @@ def make_results(path_to_csvs: str, save_location: str):
     summary = pd.concat(data).groupby(["project_name", "details", "cores"]).agg(
         average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
     )
-    summary.to_csv(os.path.join(save_location, "summary.csv"))
+
+    time = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
+    summary.to_csv(os.path.join(save_location, f"{time}_heap_benchmark.csv"))
     print(summary)
 
 

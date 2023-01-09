@@ -8,7 +8,6 @@
     Tree Elements also stored in a static array.
 """
 
-from cython.parallel import prange
 
 from libc.stdlib cimport free, malloc
 

@@ -13,9 +13,6 @@ copyright : Architecture & Performance
 license : MIT
 """
 
-from cython.parallel import prange
-
-from libc.stdlib cimport free, malloc
 
 include "parameters.pxi"
 

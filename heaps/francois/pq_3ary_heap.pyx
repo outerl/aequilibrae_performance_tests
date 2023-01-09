@@ -13,7 +13,6 @@ copyright : Architecture & Performance
 license : MIT
 """
 
-from cython.parallel cimport prange
 
 from libc.stdlib cimport free, malloc
 

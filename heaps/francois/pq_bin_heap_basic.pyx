@@ -51,31 +51,6 @@ cdef void init_heap(
         # insert(pqueue, i, DTYPE_INF)
         ##
 
-cdef void init_heap_insert_all(
-    PriorityQueue* pqueue,
-    size_t length) nogil:
-    """Initialize the priority queue.
-
-    input
-    =====
-    * PriorityQueue* pqueue : priority queue
-    * size_t length : length (maximum size) of the heap
-    """
-    cdef size_t i
-
-    pqueue.length = length
-    pqueue.size = length
-
-    pqueue.A = <size_t*> malloc(length * sizeof(size_t))
-    pqueue.Elements = <Element*> malloc(length * sizeof(Element))
-
-    for i in range(length):
-        pqueue.A[i] = i
-        # insert(pqueue, i, DTYPE_INF)
-        pqueue.Elements[i].key = DTYPE_INF
-        pqueue.Elements[i].state = IN_HEAP
-        pqueue.Elements[i].node_idx = i
-
 cdef inline void _initialize_element(
     PriorityQueue* pqueue,
     size_t element_idx) nogil:

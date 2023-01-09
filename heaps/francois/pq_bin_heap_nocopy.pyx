@@ -37,34 +37,6 @@ cdef void init_heap(
         _initialize_element(bheap, i)
 
 
-cdef void init_heap_para(
-    PriorityQueue* bheap,
-    size_t length,
-    int num_threads) nogil:
-    """Initialize the binary heap with a parallel loop.
-
-    input
-    =====
-    * PriorityQueue* bheap : binary heap
-    * size_t length : length (maximum size) of the heap
-    * int num_threads :  number of threads for the parallel job
-    """
-    cdef: 
-        size_t i
-
-    bheap.length = length
-    bheap.size = 0
-    bheap.A = <size_t*> malloc(length * sizeof(size_t))
-    bheap.Elements = <Element*> malloc(length * sizeof(Element))
-    bheap.keys = <DTYPE_t*> malloc(length * sizeof(DTYPE_t))
-
-    for i in prange(
-        length, 
-        schedule='static', 
-        nogil=True, 
-        num_threads=num_threads):
-        bheap.A[i] = length
-        _initialize_element(bheap, i)
 
 
 cdef inline void _initialize_element(

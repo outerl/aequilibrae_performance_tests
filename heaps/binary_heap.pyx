@@ -38,9 +38,9 @@ cdef Heap* initialize_heap(int num_nodes) nogil:
 cdef void initialize_node(Node* node, ITYPE_t index, DTYPE_t val=0) nogil:
     """
     Initialises a node with the input index and value, and returns a pointer to it
-    :param index: index in relation to the graph costs
+    :param index: index of the node in the array of graph costs
     :param val: The value stored in the node
-    :return: Pointer to the Node
+    :return: None
     """
     #cdef Node* node = <Node*> malloc(sizeof(Node))
     node.index = index

@@ -41,31 +41,6 @@ cdef void init_heap(
         _initialize_element(pqueue, i)
 
 
-cdef void init_heap_para(PriorityQueue* pqueue, size_t length, int num_threads) nogil:
-    """Initialize the binary heap with a parallel loop.
-
-    input
-    =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
-    * size_t length : length (maximum size) of the heap
-    * int num_threads :  number of threads for the parallel job
-    """
-    cdef size_t i
-
-    pqueue.length = length
-    pqueue.size = 0
-    pqueue.A = <size_t*> malloc(length * sizeof(size_t))
-    pqueue.Elements = <Element*> malloc(length * sizeof(Element))
-
-    for i in prange(
-        length, 
-        schedule='static', 
-        nogil=True, 
-        num_threads=num_threads):
-        pqueue.A[i] = length
-        _initialize_element(pqueue, i)
-
-
 cdef void _initialize_element(PriorityQueue* pqueue, size_t element_idx) nogil:
     """Initialize a single element.
 

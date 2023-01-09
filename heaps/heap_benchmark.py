@@ -79,7 +79,7 @@ def main():
                         default=projects, help="projects to benchmark using")
     parser.add_argument("--heaps", nargs='+', dest="heaps", help="heaps to benchmark")
     parser.add_argument("--heap-path", dest="heaps-path", default='heaps/',
-                        help="where to find heasp to benchmark", metavar="FILE")
+                        help="where to find heaps to benchmark", metavar="FILE")
     parser.add_argument("--template", dest="template", default='pathfinding_template.html.jinja',
                         help="jinja template to use", metavar="FILE")
     parser.add_argument("--cost", dest="cost", default='distance',
@@ -87,7 +87,7 @@ def main():
     parser.add_argument("--validate", dest="validate", default=False, action="store_true",
                         help="enable validation instead of benchmarking")
     parser.add_argument("--dry-run", dest="dry", default=False, action="store_true",
-                        help="If enabled no benchmarking will be performance, only compilation")
+                        help="if enabled no benchmarking will be performance, only compilation")
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())

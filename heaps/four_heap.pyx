@@ -23,9 +23,9 @@ cdef struct Heap:
     #Pointer to the heap array of Node pointers
     Node** heap
     #The index of the last node in the heap
-    int next_available_index
+    unsigned int next_available_index
     #The number of indices that have been allocated, used for dynamic memory allocation
-    int last_elem
+    unsigned int last_elem
 
 cdef Heap * initialize_heap(int num_nodes) nogil:
     #TODO: memset as zeros

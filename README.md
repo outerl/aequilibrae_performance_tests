@@ -74,10 +74,11 @@ optional arguments:
 ./heaps/heap_benchmark.py -a ~/Software/aequilibrae -m ./models -p sioux_falls -i 1 -r 1 --cost distance -c 4 --heaps pq_4ary --template basic_path_finding_francois.pyx.jinja --dry-run --heap-path ./heaps/francois
 ```
 
-### François Pacull's heap implementation
-In addition to the heaps provided in `heaps/`, some heaps written by `François Pacull` are provided in `heaps/francois`. See `heaps/francois/LICENCE` for licensing.
+### François Pacull's heap implementations
+In addition to the heaps provided in `heaps/`, some heaps written by François Pacull are provided in `heaps/francois`.
 His heaps are also detailed in his blog post at https://aetperf.github.io/2022/11/23/A-Cython-implementation-of-a-min-priority-queue.html
 
+See `heaps/francois/LICENCE` for licensing.
 # Validation
 To ensure all libraries report the same cost matrix, `validation.py` was written. It detects differences between the output of the libraries and displays it to the user.
 ## Usage

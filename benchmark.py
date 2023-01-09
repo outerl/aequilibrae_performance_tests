@@ -11,11 +11,6 @@ import warnings
 
 sys.path.append(str(Path(__file__).resolve().parent))
 from project_utils import project_init
-from pandana_testing import pandana_init, pandana_compute
-from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
-from igraph_testing import igraph_init, igraph_compute_skim
-from networkit_testing import networkit_init, networkit_compute
-from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
 
 
 def run_bench(lib, project_name, init, func, data):
@@ -86,22 +81,27 @@ def main():
                 args["cores"] = core_count
 
                 if "aequilibrae" in libraries:
+                    from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
                     results.append(run_bench("aequilibrae", project_name, aequilibrae_init,
                                              aequilibrae_compute_skim, args))
 
                 if "igraph" in libraries:
+                    from igraph_testing import igraph_init, igraph_compute_skim
                     results.append(run_bench("igraph", project_name, igraph_init,
                                              igraph_compute_skim, args))
 
                 if "pandana" in libraries:
+                    from pandana_testing import pandana_init, pandana_compute
                     results.append(run_bench("pandana", project_name, pandana_init,
                                              pandana_compute, args))
 
                 if "networkit" in libraries:
+                    from networkit_testing import networkit_init, networkit_compute
                     results.append(run_bench("networkit", project_name, networkit_init,
                                              networkit_compute, args))
 
                 if "graph-tool" in libraries and "graph_tool" in sys.modules:
+                    from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
                     results.append(run_bench("graph-tool", project_name, graph_tool_init,
                                              graph_tool_compute_skim, args))
 

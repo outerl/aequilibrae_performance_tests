@@ -3,6 +3,7 @@ from libc.stdio cimport printf
 from libc.stdlib cimport realloc, malloc, free
 from cpython cimport PyList_New
 # distutils: language=c++
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 include 'parameters.pxi'
 
 cdef struct Node:

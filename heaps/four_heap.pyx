@@ -3,6 +3,7 @@ from libc.stdlib cimport realloc, malloc, free
 from cpython cimport PyList_New
 include 'parameters.pxi'
 # distutils: language=c++
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 
 cdef struct Node:
     #index of the node in the array

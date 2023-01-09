@@ -14,6 +14,7 @@ from libc.stdlib cimport malloc
 
 include 'parameters.pxi'
 #distutils: c++
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 
 cdef struct Node:
     ITYPE_t index

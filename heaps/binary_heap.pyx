@@ -1,4 +1,3 @@
-# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 cimport cython
 from libc.stdio cimport printf
 from libc.stdlib cimport realloc, malloc, free

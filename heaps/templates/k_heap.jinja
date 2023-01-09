@@ -4,7 +4,6 @@ from libc.stdlib cimport realloc, malloc, free
 from cpython cimport PyList_New
 
 # distutils: language = c++
-# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 # Set the number of children in the heap
 include 'parameters.pxi'
 

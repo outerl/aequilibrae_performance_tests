@@ -1,3 +1,4 @@
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 cimport cython
 from libc.stdlib cimport realloc, malloc, free
 from cpython cimport PyList_New
@@ -38,8 +39,6 @@ cdef Heap * initialize_heap(int num_nodes) nogil:
     a.last_elem = num_nodes
     return a
 
-#Heap methods
-@cython.cdivision(True)
 cdef void insert_node(Heap * heap, Node * node) nogil:
     """
     Inserts the input node into the binary heap.

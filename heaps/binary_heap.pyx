@@ -1,3 +1,4 @@
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 cimport cython
 from libc.stdio cimport printf
 from libc.stdlib cimport realloc, malloc, free
@@ -47,8 +48,6 @@ cdef void initialize_node(Node* node, ITYPE_t index, DTYPE_t val=0) nogil:
     node.val = val
 
 
-#Heap methods
-@cython.cdivision(True)
 cdef void insert_node(Heap* heap, Node* node) nogil:
     """
     Inserts the input node into the binary heap.

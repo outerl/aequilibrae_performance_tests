@@ -107,15 +107,18 @@ def main():
 
                 print("-" * 30)
 
-        proj_summary = pd.concat(proj_series)
         results = pd.concat(results)
         summary = results.groupby(["project_name", "library", "cores"]).agg(
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
+        time = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
+        print(time)
         print(summary)
-        results.to_csv(os.path.join(output_path, f"{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv"))
-            #f"{output_path}/{datetime.now().strftime('%Y_%m_%d-%H_%M_%S')}_table.csv")
-        #proj_summary.to_csv(os.path.join(output_path, "project summary.csv"))
-            #f"{output_path}/project summary.csv", )
+        results.to_csv(os.path.join(output_path, f"{time}_table.csv"))
+
+        # proj_summary = pd.concat(proj_series)
+        # proj_summary.to_csv(os.path.join(output_path, f"{time}_project_summary.csv"))
+
+
 if __name__ == "__main__":
     main()

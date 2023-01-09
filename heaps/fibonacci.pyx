@@ -1,3 +1,4 @@
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 
 ######################################################################
 # FibonacciNode structure

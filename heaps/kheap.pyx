@@ -1,3 +1,4 @@
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 cimport cython
 from libc.stdlib cimport realloc, malloc, free
 from cpython cimport PyList_New

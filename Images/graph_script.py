@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
+import math
 def normalised_time_plot(summary: pd.DataFrame, projects: pd.DataFrame) -> go.Figure:
     """
 
@@ -40,7 +41,7 @@ def normalised_time_plot(summary: pd.DataFrame, projects: pd.DataFrame) -> go.Fi
             )
     return fig
 
-def core_plot(summary: pd.DataFrame, projects: pd.DataFrame, proj: str, normalised=True):
+def core_plot(summary: pd.DataFrame, projects: pd.DataFrame, proj: str, normalised=True, transformation=None):
     """Does the normalised core plot for one project"""
     # ratio of performance between aeq and a designated library (comparison), based on the size of the network (num edges).
     fig = go.Figure()
@@ -50,9 +51,12 @@ def core_plot(summary: pd.DataFrame, projects: pd.DataFrame, proj: str, normalis
         norm_time = []
         for core in cores:
             try:
-                norm_time.append((summary.loc[(proj, alg, core)]["min"] / projects.loc[proj, "num_centroids"]) * 1000) \
-                    if normalised else norm_time.append(summary.loc[(proj, alg, core)]["min"])
-                print(alg, core, norm_time[-1])
+                if transformation is None:
+                    norm_time.append((summary.loc[(proj, alg, core)]["min"] / projects.loc[proj, "num_centroids"]) * 1000) \
+                        if normalised else norm_time.append(summary.loc[(proj, alg, core)]["min"])
+                    print(alg, core, norm_time[-1])
+                else:
+                    norm_time.append(transformation(summary.loc[(proj, alg, core)]["min"]))
             except:
                 pass
         trace = go.Scatter(x=cores, y=norm_time, name=alg)
@@ -61,7 +65,8 @@ def core_plot(summary: pd.DataFrame, projects: pd.DataFrame, proj: str, normalis
         # Aesthetics
         #print("library: ", alg, ", ratio: ", norm_time)
     fig.update_layout(title={
-        'text': "Minimum Runtime per 1000 Origins for "+ proj,
+        'text': "Minimum Runtime per 1000 Origins for "+ proj if normalised \
+            else "Minimum Runtime for "+ proj,
         'y': 0.9,
         'x': 0.5,
         'xanchor': 'center',
@@ -84,7 +89,7 @@ proj_summary = pd.read_csv(r"C:\Users\61435\Downloads\project summary (1).csv", 
 
 #plots by Core
 core_data = all_data.groupby(["project_name", "details", "cores"]).min()
-core_plot(core_data, proj_summary, "LongAn", normalised=False).show()
+core_plot(core_data, proj_summary, "LongAn").show()
 
 #normalised time plot
 # time_data = all_data.groupby("cores").get_group(1).groupby(["project_name","details"]).min().drop("cores", axis=1)

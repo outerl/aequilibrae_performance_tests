@@ -6,11 +6,6 @@ import sys
 from typing import List
 
 from project_utils import project_init
-from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
-from igraph_testing import igraph_init, igraph_compute_skim
-from pandana_testing import pandana_init, pandana_compute
-from networkit_testing import networkit_init, networkit_compute
-from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
 
 
 def validate(skim1, skim2, atol: float = 1e-01, verbose: bool = False):
@@ -45,21 +40,26 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], args)
 
         for library in libraries:
             if "aequilibrae" == library:
+                from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
                 print(f"Running aequilibrae on {project_name}...")
                 skims.append(aequilibrae_compute_skim(*aequilibrae_init(args)).get_matrix(args["cost"]))
             elif "igraph" == library:
+                from igraph_testing import igraph_init, igraph_compute_skim
                 print(f'Running igraph on {project_name}...')
                 skims.append(igraph_compute_skim(*igraph_init(args)))
             elif "pandana" == library:
+                from pandana_testing import pandana_init, pandana_compute
                 print(f"Running pandana on {project_name}...")
                 a = np.array(pandana_compute(*pandana_init(args)))
                 a_len = max(a.shape)
                 a_len_sqrt = int(np.sqrt(a_len))
                 skims.append(a.reshape((a_len_sqrt, a_len_sqrt)))
             elif "networkit" == library:
+                from networkit_testing import networkit_init, networkit_compute
                 print(f"Running Networkit on {project_name}...")
                 skims.append(networkit_compute(*networkit_init(args)))
             elif "graph-tool" == library and "graph_tool" in sys.modules:
+                from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
                 print(f"Running graph-tool on {project_name}...")
                 skims.append(graph_tool_compute_skim(*graph_tool_init(args)))
 

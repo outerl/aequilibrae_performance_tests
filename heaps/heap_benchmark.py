@@ -41,11 +41,16 @@ def make_results(path_to_csvs: str, save_location: str):
 
 
 def validate(args):
-    subprocess.run(["python", r"validation.py",
-                    "--model-path", args["path"],
-                    "--libraries", "igraph", "aequilibrae",
-                    "--projects", *args["projects"],
-                    "--cost", args["cost"]])
+    arg_list = [
+        "python", r"validation.py",
+        "--model-path", args["path"],
+        "--libraries", "igraph", "aequilibrae",
+        "--projects", *args["projects"],
+        "--cost", args["cost"],
+    ]
+    if args["verbose"]:
+        arg_list.append("--verbose")
+    subprocess.run(arg_list)
 
 
 def benchmark(args, tmpdirname, heap):
@@ -91,6 +96,8 @@ def main():
                         help="enable validation instead of benchmarking")
     parser.add_argument("--dry-run", dest="dry", default=False, action="store_true",
                         help="if enabled no benchmarking will be performance, only compilation")
+    parser.add_argument("-v", "--verbose", dest="verbose", default=False, action="store_true",
+                        help="if enabled will display the diff, this could be very long")
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())

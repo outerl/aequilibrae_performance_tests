@@ -13,7 +13,7 @@ from networkit_testing import networkit_init, networkit_compute
 from graph_tool_testing import graph_tool_init, graph_tool_compute_skim
 
 
-def validate(skim1, skim2, atol: float = 1e-01):
+def validate(skim1, skim2, atol: float = 1e-01, verbose: bool = False):
     """
     Detect discrepencies in the provided skims with a tolerance. Prints the
     relevant locations, number of unique values, and max absolute difference.
@@ -23,9 +23,10 @@ def validate(skim1, skim2, atol: float = 1e-01):
         return True
     else:
         loc = np.where(~isclose)
-        for x, y in zip(*loc):
-            print(f"{x}, {y}: {skim1[x, y]:.2f} != {skim2[x, y]:.2f}")
-        print("[x, y: value1 != value2]")
+        if verbose:
+            for x, y in zip(*loc):
+                print(f"{x}, {y}: {skim1[x, y]:.2f} != {skim2[x, y]:.2f}")
+            print("[x, y: value1 != value2]")
         print(f"\nThe skims differ at {len(loc[0])} points")
         print(f"There are {len(np.unique(loc[0]))} unique x values", f"and {len(np.unique(loc[1]))} unique y values")
         print(f"The max absolute difference is {np.abs(skim1 - skim2).max()}\n\n")
@@ -64,7 +65,7 @@ def validate_projects(proj_path: str, projects: str, libraries: List[str], args)
 
         print("")
         for skim, library in list(zip(skims, libraries))[1:]:
-            if not validate(skims[0], skim):
+            if not validate(skims[0], skim, verbose=args["verbose"]):
                 print(f"{library} differs from {libraries[0]}")
                 result = False
             else:
@@ -89,6 +90,8 @@ def main():
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
                         default=projects,
                         help="projects to benchmark using")
+    parser.add_argument("-v", "--verbose", dest="verbose", default=False, action="store_true",
+                        help="if enabled will display the diff, this could be very long")
 
     args = vars(parser.parse_args())
 

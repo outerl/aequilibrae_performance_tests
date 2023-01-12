@@ -181,17 +181,22 @@ cdef void up_heap(Heap * heap, Node * node) nogil:
     :param node: Node being adjusted
     :return: read the function definition
     """
-    cdef int a = node.arr_index
-    cdef int b = (a - 1) / 4
-    if a == 0 or node.val >= heap.heap[b].val:
-        return
-    cdef Node * swapped = heap.heap[b]
-    #Swapping indices around
-    node.arr_index = b
-    swapped.arr_index = a
-    heap.heap[a] = swapped
-    heap.heap[b] = node
-    up_heap(heap, node)
+    cdef:
+        unsigned int i = node.arr_index, j
+        DTYPE_t key_j
+        Node * swapped
+    while i > 0:
+        j = (i - 1) // 4
+        if heap.heap[j].val > heap.heap[i].val:
+            swapped = heap.heap[j]
+            #Swapping indices around
+            node.arr_index = j
+            swapped.arr_index = i
+            heap.heap[i] = swapped
+            heap.heap[j] = node
+            i = j
+        else:
+            break
 
 #Node methods
 cdef Node* initialize_node(Node* node, ITYPE_t index, DTYPE_t val=0) nogil:

@@ -107,29 +107,71 @@ cdef void down_heap(Heap* heap, Node* node) nogil:
     :param node: Node being adjusted
     :return: nadda
     """
-    cdef int a = node.arr_index
-    #Memory safe check to make sure we aren't venturing into unknown territory (uninitialised memory)/child checking
-    cdef int child = 0
-    while (4 * a) + (child + 1) < heap.next_available_index and child < 4:
-        child+=1
-    if child == 0:
-        return
-    cdef int b
-    cdef Node* min_child = heap.heap[(4*a)+1]
-    cdef int i
-    for i in range(2, child+1):
-        if min_child.val > heap.heap[(4*a)+i].val:
-            min_child = heap.heap[4*a+i]
-    b = min_child.arr_index
-    if node.val <= heap.heap[b].val:
-        return
-    cdef Node * swapped = heap.heap[b]
-    #Swapping indices around
-    node.arr_index = b
-    swapped.arr_index = a
-    heap.heap[a] = swapped
-    heap.heap[b] = node
-    down_heap(heap, node)
+    cdef:
+        size_t c1, c2, c3, c4, i = node.arr_index, s
+        DTYPE_t val_tmp, val_min
+        Node* swapped
+    while True:
+        c1 = 4 * i + 1
+        c2 = c1 + 1
+        c3 = c2 + 1
+        c4 = c3 + 1
+
+        s = i
+        val_min = heap.heap[s].val
+        if (c4 < heap.next_available_index):
+            val_tmp = heap.heap[c4].val
+            if val_tmp < val_min:
+                s = c4
+                val_min = val_tmp
+            val_tmp = heap.heap[c3].val
+            if val_tmp < val_min:
+                s = c3
+                val_min = val_tmp
+            val_tmp = heap.heap[c2].val
+            if val_tmp < val_min:
+                s = c2
+                val_min = val_tmp
+            val_tmp = heap.heap[c1].val
+            if val_tmp < val_min:
+                s = c1
+        else:
+            if (c3 < heap.next_available_index):
+                val_tmp = heap.heap[c3].val
+                if val_tmp < val_min:
+                    s = c3
+                    val_min = val_tmp
+                val_tmp = heap.heap[c2].val
+                if val_tmp < val_min:
+                    s = c2
+                    val_min = val_tmp
+                val_tmp = heap.heap[c1].val
+                if val_tmp < val_min:
+                    s = c1
+            else:
+                if (c2 < heap.next_available_index):
+                    val_tmp = heap.heap[c2].val
+                    if val_tmp < val_min:
+                        s = c2
+                        val_min = val_tmp
+                    val_tmp = heap.heap[c1].val
+                    if val_tmp < val_min:
+                        s = c1
+                else:
+                    if (c1 < heap.next_available_index):
+                        val_tmp = heap.heap[c1].val
+                        if val_tmp < val_min:
+                            s = c1
+        if s != i:
+            swapped = heap.heap[s]
+            #Swapping indices around
+            node.arr_index = s
+            swapped.arr_index = i
+            heap.heap[i] = swapped
+            heap.heap[s] = node
+            i = s
+        else:
+            break
 
 cdef void up_heap(Heap * heap, Node * node) nogil:
     """
@@ -139,17 +181,22 @@ cdef void up_heap(Heap * heap, Node * node) nogil:
     :param node: Node being adjusted
     :return: read the function definition
     """
-    cdef int a = node.arr_index
-    cdef int b = (a - 1) / 4
-    if a == 0 or node.val >= heap.heap[b].val:
-        return
-    cdef Node * swapped = heap.heap[b]
-    #Swapping indices around
-    node.arr_index = b
-    swapped.arr_index = a
-    heap.heap[a] = swapped
-    heap.heap[b] = node
-    up_heap(heap, node)
+    cdef:
+        unsigned int i = node.arr_index, j
+        DTYPE_t key_j
+        Node * swapped
+    while i > 0:
+        j = (i - 1) // 4
+        if heap.heap[j].val > heap.heap[i].val:
+            swapped = heap.heap[j]
+            #Swapping indices around
+            node.arr_index = j
+            swapped.arr_index = i
+            heap.heap[i] = swapped
+            heap.heap[j] = node
+            i = j
+        else:
+            break
 
 #Node methods
 cdef Node* initialize_node(Node* node, ITYPE_t index, DTYPE_t val=0) nogil:
@@ -164,49 +211,6 @@ cdef Node* initialize_node(Node* node, ITYPE_t index, DTYPE_t val=0) nogil:
     node.state = 2
     node.val = val
     return node
-
-cdef list heap_to_list(Heap * heap):
-    """
-    Utility method for testing the heap functions correctly. The method takes an input heap and returns a python list
-    Since python doesn't support pointers, the values of each Node are put in the position of the node instead of the pointer.
-    :param heap: KHeap being checked
-    :return: Array form of the KHeap with its values stored in it
-    """
-    a = PyList_New(0)
-    for i in range(0, heap.next_available_index):
-        a.append(heap.heap[i].val)
-    return a
-
-def execute_python_test_four(inserts: list, solns: list):
-    """
-    Utility method for executing python based tests into the cython code. Supports insertion, removal and decrementation:
-    These actions are specified in inserts with the following syntax:
-    insertion: A double value, e.g "4"
-    removal: char "r"
-    decrementation: tuple of index, new_value, e.g. (0,3) would change the 0th element (Node) in the heap's value to 3.
-    An example array could be: [2,3,4,"r", (2,5), "r", 8]
-    :param inserts: List of actions the heap is required to execute
-    :param solns: The correct state of the heap after each action
-    :return: None
-    """
-    #Use char "r" to denote remove
-    #use tuple (i, new_val) to denote decrement at index i
-    heap = initialize_heap(len(inserts))
-    i = 0
-    for elem in inserts:
-        if isinstance(elem, tuple):
-            print("decrement ", elem)
-            index, val = elem
-            decrease_val(heap, heap.heap[index], val)
-        elif isinstance(elem, str):
-            #print("removal")
-            remove_min(heap)
-        else:
-            #print("insert", elem)
-            init_insert_node(heap, elem)
-        print(solns[i], "Heap is: ", heap_to_list(heap))
-        i += 1
-        yield heap_to_list(heap)
 
 cdef death_to_nodes(Heap * heap):
     """

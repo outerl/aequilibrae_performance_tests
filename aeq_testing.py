@@ -1,3 +1,4 @@
+from aequilibrae import Project
 from aequilibrae.paths import NetworkSkimming
 import timeit
 
@@ -36,3 +37,13 @@ def aequilibrae_testing(graph, cost: str, iters: int = 2, repeats: int = 5):
     t = timeit.Timer(lambda: aequilibrae_compute_skim(graph))
     times = t.repeat(repeat=repeats, number=iters)
     return times
+
+
+def aequilibrae_graph_creation_init(data):
+    proj = Project()
+    proj.open(data["proj_path"])
+    return proj, data["cost"], "c"
+
+
+def aequilibrae_graph_creation_build(proj, cost, modes):
+    proj.network.build_graphs([cost], modes=modes)

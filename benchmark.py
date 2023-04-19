@@ -44,13 +44,16 @@ def main():
                         help="number of cores to use. Use 0 for all cores.",
                         type=int, metavar="N")
     parser.add_argument("-l", "--libraries", nargs='+', dest="libraries",
-                        choices=libraries, default=libraries,
+                        choices=libraries + ["aequilibrae_graph_creation"], default=libraries,
                         help="libraries to benchmark")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
                         default=projects, help="projects to benchmark using")
     parser.add_argument("--cost", dest="cost", default='distance',
                         help="cost column to skim for")
     parser.add_argument('--details', dest='details')
+    parser.add_argument('--filename', dest='filename')
+    parser.add_argument("--without-project-init", dest="project-init", default=False, action="store_true",
+                        help="whether to use aequilibrae's project init for all libraries.")
     parser.set_defaults(feature=True)
 
     args = vars(parser.parse_args())
@@ -69,13 +72,15 @@ def main():
         results = []
         proj_series = []
         for project_name in args["projects"]:
-            args["graph"], args["nodes"], args["geo"] = project_init(f"{args['path']}/{project_name}", args["cost"])
-            proj_series.append(pd.DataFrame({
-                "num_links": [args["graph"].compact_num_links],
-                "num_nodes": [args["graph"].compact_num_nodes],
-                "num_zones": [args["graph"].num_zones],
-                "num_centroids": [len(args["graph"].centroids)]
-            }, index=[project_name]))
+            args["proj_path"] = Path(args["path"]) / project_name
+            if args["project-init"]:
+                args["graph"], args["nodes"], args["geo"] = project_init(args["proj_path"], args["cost"])
+                proj_series.append(pd.DataFrame({
+                    "num_links": [args["graph"].compact_num_links],
+                    "num_nodes": [args["graph"].compact_num_nodes],
+                    "num_zones": [args["graph"].num_zones],
+                    "num_centroids": [len(args["graph"].centroids)]
+                }, index=[project_name]))
 
             for core_count in (range(cores[0], cores[1] + 1) if len(cores) == 2 else cores):
                 args["cores"] = core_count
@@ -84,6 +89,11 @@ def main():
                     from aeq_testing import aequilibrae_init, aequilibrae_compute_skim
                     results.append(run_bench("aequilibrae", project_name, aequilibrae_init,
                                              aequilibrae_compute_skim, args))
+
+                if "aequilibrae_graph_creation" in libraries:
+                    from aeq_testing import aequilibrae_graph_creation_init, aequilibrae_graph_creation_build
+                    results.append(run_bench("aequilibrae_graph_creation", project_name, aequilibrae_graph_creation_init,
+                                             aequilibrae_graph_creation_build, args))
 
                 if "igraph" in libraries:
                     from igraph_testing import igraph_init, igraph_compute_skim
@@ -112,9 +122,12 @@ def main():
             average=("runtime", "mean"), min=("runtime", "min"), max=("runtime", "max")
         )
         time = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
-        print(time)
-        print(summary)
-        results.to_csv(os.path.join(output_path, f"{time}_table.csv"))
+        if args["filename"]:
+            filename = f"{args['filename']}_{time}_table.csv"
+        else:
+            filename = f"{time}_table.csv"
+        results.to_csv(os.path.join(output_path, filename))
+        print(filename)
 
         # proj_summary = pd.concat(proj_series)
         # proj_summary.to_csv(os.path.join(output_path, f"{time}_project_summary.csv"))

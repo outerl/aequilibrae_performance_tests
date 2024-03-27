@@ -28,8 +28,8 @@ def run_bench(lib, project_name, init, func, data):
 
 
 def main():
-    projects = ["sioux_falls", "chicago_sketch", "LongAn"]
-    libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool"]
+    projects = ["sioux_falls", "chicago_sketch", "LongAn", "Arkansas"]
+    libraries = ["aequilibrae", "igraph", "pandana", "networkit", "graph-tool", "aequilibrae_graph_creation", "aequilibrae_route_choice"]
 
     parser = ArgumentParser()
     parser.add_argument("-m", "--model-path", dest="path", default='../models',
@@ -44,7 +44,7 @@ def main():
                         help="number of cores to use. Use 0 for all cores.",
                         type=int, metavar="N")
     parser.add_argument("-l", "--libraries", nargs='+', dest="libraries",
-                        choices=libraries + ["aequilibrae_graph_creation"], default=libraries,
+                        choices=libraries, default=libraries,
                         help="libraries to benchmark")
     parser.add_argument("-p", "--projects", nargs='+', dest="projects",
                         default=projects, help="projects to benchmark using")
@@ -52,7 +52,7 @@ def main():
                         help="cost column to skim for")
     parser.add_argument('--details', dest='details')
     parser.add_argument('--filename', dest='filename')
-    parser.add_argument("--without-project-init", dest="project-init", default=False, action="store_true",
+    parser.add_argument("--without-project-init", dest="without-project-init", default=False, action="store_true",
                         help="whether to use aequilibrae's project init for all libraries.")
     parser.set_defaults(feature=True)
 
@@ -73,7 +73,7 @@ def main():
         proj_series = []
         for project_name in args["projects"]:
             args["proj_path"] = Path(args["path"]) / project_name
-            if args["project-init"]:
+            if not args["without-project-init"]:
                 args["graph"], args["nodes"], args["geo"] = project_init(args["proj_path"], args["cost"])
                 proj_series.append(pd.DataFrame({
                     "num_links": [args["graph"].compact_num_links],
@@ -94,6 +94,12 @@ def main():
                     from aeq_testing import aequilibrae_graph_creation_init, aequilibrae_graph_creation_build
                     results.append(run_bench("aequilibrae_graph_creation", project_name, aequilibrae_graph_creation_init,
                                              aequilibrae_graph_creation_build, args))
+
+                if "aequilibrae_route_choice" in libraries:
+                    from aeq_testing import aequilibrae_route_choice
+                    from project_utils import qfm_project_init
+                    results.append(run_bench("aequilibrae_route_choice", project_name, qfm_project_init,
+                                             aequilibrae_route_choice, args))
 
                 if "igraph" in libraries:
                     from igraph_testing import igraph_init, igraph_compute_skim
@@ -127,6 +133,10 @@ def main():
         else:
             filename = f"{time}_table.csv"
         results.to_csv(os.path.join(output_path, filename))
+        print(results)
+        print("-" * 30)
+        print(summary)
+        print("-" * 30)
         print(filename)
 
         # proj_summary = pd.concat(proj_series)

@@ -1,5 +1,6 @@
 from aequilibrae import Project
 from aequilibrae.paths import NetworkSkimming
+import json
 import timeit
 
 
@@ -47,3 +48,9 @@ def aequilibrae_graph_creation_init(data):
 
 def aequilibrae_graph_creation_build(proj, cost, modes):
     proj.network.build_graphs([cost], modes=modes)
+
+
+def aequilibrae_route_choice(rc):
+    rc.execute(perform_assignment=True)
+    # rc.get_results()
+    # rc.get_load_results(which="both")
